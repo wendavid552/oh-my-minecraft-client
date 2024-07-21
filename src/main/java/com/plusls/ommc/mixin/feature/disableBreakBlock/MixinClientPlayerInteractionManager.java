@@ -37,7 +37,7 @@ public class MixinClientPlayerInteractionManager {
     private boolean shouldDisableBreakBlock(BlockPos pos) {
         Level world = Minecraft.getInstance().level;
         Player player = Minecraft.getInstance().player;
-        if (Configs.disableBreakBlock &&
+        if (Configs.disableBreakBlock.getBooleanValue() &&
                 world != null && player != null) {
             //#if MC >= 11903
             String blockId = BuiltInRegistries.BLOCK.getKey(world.getBlockState(pos).getBlock()).toString();
@@ -46,7 +46,7 @@ public class MixinClientPlayerInteractionManager {
             //#endif
 
             String blockName = world.getBlockState(pos).getBlock().getName().getString();
-            return Configs.breakBlockBlackList.stream().anyMatch(s -> blockId.contains(s) || blockName.contains(s));
+            return Configs.breakBlockBlackList.getStrings().stream().anyMatch(s -> blockId.contains(s) || blockName.contains(s));
         }
         return false;
     }

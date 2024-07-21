@@ -36,9 +36,9 @@ public abstract class MixinEntity {
         //#endif
         String entityName = this.getType().getDescription().getString();
         if (Configs.highlightEntityListType == UsageRestriction.ListType.WHITELIST) {
-            cir.setReturnValue(Configs.highlightEntityWhiteList.stream().anyMatch(s -> entityId.contains(s) || entityName.contains(s)));
+            cir.setReturnValue(Configs.highlightEntityWhiteList.getStrings().stream().anyMatch(s -> entityId.contains(s) || entityName.contains(s)));
         } else if (Configs.highlightEntityListType == UsageRestriction.ListType.BLACKLIST) {
-            cir.setReturnValue(Configs.highlightEntityBlackList.stream().noneMatch(s -> entityId.contains(s) || entityName.contains(s)));
+            cir.setReturnValue(Configs.highlightEntityBlackList.getStrings().stream().noneMatch(s -> entityId.contains(s) || entityName.contains(s)));
         }
     }
 }

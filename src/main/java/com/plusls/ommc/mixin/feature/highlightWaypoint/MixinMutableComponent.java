@@ -17,7 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.Style;
 //#else
-//$$ import top.hendrixshen.magiclib.compat.preprocess.api.DummyClass;
+//$$ import top.hendrixshen.magiclib.api.preprocess.DummyClass;
 //#endif
 
 //#if MC > 12002

@@ -3,12 +3,16 @@ package com.plusls.ommc.feature.sortInventory;
 import com.plusls.ommc.config.Configs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+//#if MC > 12005
+//$$ import net.minecraft.core.component.DataComponents;
+//$$ import net.minecraft.world.item.component.CustomData;
+//#endif
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import top.hendrixshen.magiclib.compat.minecraft.api.nbt.TagCompatApi;
+import top.hendrixshen.magiclib.api.compat.minecraft.nbt.TagCompat;
 
 public class ShulkerBoxItemUtil {
     public static final int SHULKERBOX_MAX_STACK_AMOUNT = 64;
@@ -18,16 +22,21 @@ public class ShulkerBoxItemUtil {
             return false;
         }
 
+        //#if MC < 12005
         CompoundTag nbt = itemStack.getTag();
+        //#else
+        //$$ CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
+        //$$ CompoundTag nbt = data.copyTag();
+        //#endif
 
-        if (nbt == null || !nbt.contains("BlockEntityTag", TagCompatApi.TAG_COMPOUND)) {
+        if (nbt == null || !nbt.contains("BlockEntityTag", TagCompat.TAG_COMPOUND)) {
             return true;
         }
 
         CompoundTag tag = nbt.getCompound("BlockEntityTag");
 
-        if (tag.contains("Items", TagCompatApi.TAG_LIST)) {
-            ListTag tagList = tag.getList("Items", TagCompatApi.TAG_COMPOUND);
+        if (tag.contains("Items", TagCompat.TAG_LIST)) {
+            ListTag tagList = tag.getList("Items", TagCompat.TAG_COMPOUND);
             return tagList.isEmpty();
         }
 
@@ -45,8 +54,8 @@ public class ShulkerBoxItemUtil {
         if (a != null) {
             CompoundTag tag = a.getCompound("BlockEntityTag");
 
-            if (tag.contains("Items", TagCompatApi.TAG_LIST)) {
-                ListTag tagList = tag.getList("Items", TagCompatApi.TAG_COMPOUND);
+            if (tag.contains("Items", TagCompat.TAG_LIST)) {
+                ListTag tagList = tag.getList("Items", TagCompat.TAG_COMPOUND);
                 aSize = tagList.size();
             }
         }
@@ -54,8 +63,8 @@ public class ShulkerBoxItemUtil {
         if (b != null) {
             CompoundTag tag = b.getCompound("BlockEntityTag");
 
-            if (tag.contains("Items", TagCompatApi.TAG_LIST)) {
-                ListTag tagList = tag.getList("Items", TagCompatApi.TAG_COMPOUND);
+            if (tag.contains("Items", TagCompat.TAG_LIST)) {
+                ListTag tagList = tag.getList("Items", TagCompat.TAG_COMPOUND);
                 bSize = tagList.size();
             }
         }
@@ -64,7 +73,7 @@ public class ShulkerBoxItemUtil {
     }
 
     public static int getMaxCount(ItemStack itemStack) {
-        if (Configs.sortInventorySupportEmptyShulkerBoxStack &&
+        if (Configs.sortInventorySupportEmptyShulkerBoxStack.getBooleanValue() &&
                 ShulkerBoxItemUtil.isEmptyShulkerBoxItem(itemStack)) {
             return ShulkerBoxItemUtil.SHULKERBOX_MAX_STACK_AMOUNT;
         } else {

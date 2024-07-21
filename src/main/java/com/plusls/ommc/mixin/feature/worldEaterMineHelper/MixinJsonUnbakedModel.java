@@ -47,7 +47,9 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
 
     @SuppressWarnings("InvalidInjectorMethodSignature")
     @Inject(
-            //#if MC >= 11903
+            //#if MC > 12006
+            //$$ method = "bake(Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/renderer/block/model/BlockModel;Ljava/util/function/Function;Lnet/minecraft/client/resources/model/ModelState;Z)Lnet/minecraft/client/resources/model/BakedModel;",
+            //#elseif MC >= 11903 && MC <= 12006
             method = "bake(Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/renderer/block/model/BlockModel;Ljava/util/function/Function;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/resources/ResourceLocation;Z)Lnet/minecraft/client/resources/model/BakedModel;",
             //#elseif MC > 11404
             //$$ method = "bake(Lnet/minecraft/client/resources/model/ModelBakery;Lnet/minecraft/client/renderer/block/model/BlockModel;Ljava/util/function/Function;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/resources/ResourceLocation;Z)Lnet/minecraft/client/resources/model/BakedModel;",
@@ -69,7 +71,9 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
             //#endif
             ModelState modelSettings,
             //#if MC > 11404
+            //#if MC < 12100
             ResourceLocation resourceLocation,
+            //#endif
             boolean hasDepth,
             //#endif
             CallbackInfoReturnable<BakedModel> cir) {
@@ -84,7 +88,11 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
         }
 
         String[] splitResult = identifier.getPath().split("/");
+        //#if MC > 12006
+        //$$ ResourceLocation blockId = ResourceLocation.parse(splitResult[splitResult.length - 1]);
+        //#else
         ResourceLocation blockId = new ResourceLocation(splitResult[splitResult.length - 1]);
+        //#endif
         //#if MC >= 11903
         Block block = BuiltInRegistries.BLOCK.get(blockId);
         //#else
@@ -109,7 +117,11 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
 
             for (Map.Entry<Direction, BlockElementFace> entry : modelElement.faces.entrySet()) {
                 BlockElementFace originalModelElementFace = entry.getValue();
+                //#if MC > 12006
+                //$$ BlockElementFace modelElementFace = new BlockElementFace(null, originalModelElementFace.tintIndex(), originalModelElementFace.texture(), originalModelElementFace.uv());
+                //#else
                 BlockElementFace modelElementFace = new BlockElementFace(null, originalModelElementFace.tintIndex, originalModelElementFace.texture, originalModelElementFace.uv);
+                //#endif
                 faces.put(entry.getKey(), modelElementFace);
             }
 
@@ -140,7 +152,9 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
                 textureGetter,
                 //#if MC > 11404
                 modelSettings,
+                //#if MC <= 12006
                 identifier,
+                //#endif
                 hasDepth
                 //#else
                 //$$ modelSettings
@@ -156,7 +170,9 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
                 textureGetter,
                 //#if MC > 11404
                 modelSettings,
+                //#if MC <= 12006
                 identifier,
+                //#endif
                 hasDepth
                 //#else
                 //$$ modelSettings
@@ -174,7 +190,9 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
                 textureGetter,
                 //#if MC > 11404
                 modelSettings,
+                //#if MC <= 12006
                 identifier,
+                //#endif
                 hasDepth
                 //#else
                 //$$ modelSettings

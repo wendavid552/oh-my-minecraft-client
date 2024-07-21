@@ -10,14 +10,14 @@ import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependencies;
 
 //#if MC <= 11605
 //$$ import org.spongepowered.asm.mixin.Dynamic;
 //#endif
 
-@Dependencies(and = @Dependency("optifabric"))
+@Dependencies(require = @Dependency("optifabric"))
 @Mixin(ModelBlockRenderer.class)
 public class MixinBlockModelRenderer {
 

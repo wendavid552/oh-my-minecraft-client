@@ -24,14 +24,16 @@ import java.util.List;
 public class MixinChatHud {
     @Inject(method = "clearMessages", at = @At(value = "INVOKE", target = "Ljava/util/List;clear()V", ordinal = 2), cancellable = true)
     private void dontClearChatHistory(boolean clearHistory, CallbackInfo ci) {
-        if (Configs.dontClearChatHistory) {
+        if (Configs.dontClearChatHistory.getBooleanValue()) {
             ci.cancel();
         }
     }
 
     @Redirect(
-            //#if MC > 11802
+            //#if MC > 11802 && MC < 12005
             method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;ILnet/minecraft/client/GuiMessageTag;Z)V",
+            //#elseif MC >= 12005
+            //$$ method = "addMessageToDisplayQueue",
             //#else
             //$$ method = "addMessage(Lnet/minecraft/network/chat/Component;IIZ)V",
             //#endif
@@ -52,7 +54,7 @@ public class MixinChatHud {
     //#else
     //$$ private int modifySize(List<Component> list) {
     //#endif
-        if (Configs.dontClearChatHistory) {
+        if (Configs.dontClearChatHistory.getBooleanValue()) {
             return 1;
         }
         return list.size();

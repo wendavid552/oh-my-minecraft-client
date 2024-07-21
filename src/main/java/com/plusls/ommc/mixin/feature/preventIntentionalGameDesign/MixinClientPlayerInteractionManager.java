@@ -32,7 +32,7 @@ public class MixinClientPlayerInteractionManager {
         //#if MC > 11802
         ClientLevel world = (ClientLevel) player.level();
         //#endif
-        if (!Configs.preventIntentionalGameDesign) {
+        if (!Configs.preventIntentionalGameDesign.getBooleanValue()) {
             return;
         }
         BlockPos blockPos = hitResult.getBlockPos();

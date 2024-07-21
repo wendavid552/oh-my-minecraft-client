@@ -16,11 +16,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependencies;
 
 
-@Dependencies(and = @Dependency("frex"))
+@Dependencies(require = @Dependency("frex"))
 @Pseudo
 @Mixin(targets = "io.vram.frex.impl.model.SimpleFluidSpriteProvider", remap = false)
 public abstract class MixinSimpleFluidSpriteProvider {
@@ -43,7 +43,7 @@ public abstract class MixinSimpleFluidSpriteProvider {
                 lavaSourceSpites[0] = LavaSourceResourceLoader.lavaSourceSpites[0];
                 lavaSourceSpites[1] = LavaSourceResourceLoader.lavaSourceSpites[1];
             }
-            if (Configs.highlightLavaSource && state.is(FluidTags.LAVA) &&
+            if (Configs.highlightLavaSource.getBooleanValue() && state.is(FluidTags.LAVA) &&
                     view.getBlockState(pos).getValue(LiquidBlock.LEVEL) == 0) {
                 cir.setReturnValue(lavaSourceSpites);
             }

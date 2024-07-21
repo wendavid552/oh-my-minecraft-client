@@ -1,8 +1,11 @@
 package com.plusls.ommc.feature.realSneaking;
 
 import com.plusls.ommc.config.Configs;
+import com.plusls.ommc.util.CompatGetUtil;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
+import top.hendrixshen.magiclib.api.compat.minecraft.world.entity.EntityCompat;
+import top.hendrixshen.magiclib.api.compat.minecraft.world.entity.LivingEntityCompat;
 
 public class RealSneakingEventHandler {
     final private static float MIN_STEP_HEIGHT = 0.001f;
@@ -14,13 +17,14 @@ public class RealSneakingEventHandler {
 
     private static void preClientTick(Minecraft minecraftClient) {
         if (minecraftClient.player != null) {
-            if (minecraftClient.player.maxUpStepCompat() - MIN_STEP_HEIGHT >= 0.00001) {
-                prevStepHeight = minecraftClient.player.maxUpStepCompat();
+            LivingEntityCompat entityCompat = CompatGetUtil.getLivingEntityCompat(minecraftClient.player);
+            if (EntityCompat.of(minecraftClient.player).getMaxUpStep() - MIN_STEP_HEIGHT >= 0.00001) {
+                prevStepHeight = entityCompat.getMaxUpStep();
             }
-            if (Configs.realSneaking && minecraftClient.player.isShiftKeyDown()) {
-                minecraftClient.player.setMaxUpStepCompat(MIN_STEP_HEIGHT);
+            if (Configs.realSneaking.getBooleanValue() && minecraftClient.player.isShiftKeyDown()) {
+                 entityCompat.setMaxUpStep(MIN_STEP_HEIGHT);
             } else {
-                minecraftClient.player.setMaxUpStepCompat(prevStepHeight);
+                 entityCompat.setMaxUpStep(prevStepHeight);
             }
         }
     }

@@ -34,18 +34,25 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import top.hendrixshen.magiclib.compat.minecraft.api.blaze3d.vertex.VertexFormatCompatApi;
-import top.hendrixshen.magiclib.compat.minecraft.api.network.chat.ComponentCompatApi;
-import top.hendrixshen.magiclib.compat.minecraft.api.network.chat.StyleCompatApi;
+import top.hendrixshen.magiclib.api.compat.minecraft.client.gui.FontCompat;
+import top.hendrixshen.magiclib.api.compat.minecraft.world.entity.EntityCompat;
+import top.hendrixshen.magiclib.api.compat.mojang.blaze3d.vertex.VertexFormatCompat;
+import top.hendrixshen.magiclib.api.compat.minecraft.network.chat.ComponentCompat;
+import top.hendrixshen.magiclib.api.compat.minecraft.network.chat.StyleCompat;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+//#if MC > 12006
+//$$ import com.plusls.ommc.mixin.accessor.AccessorBufferBuilder;
+//#endif
+
 //#if MC > 11902
 import com.mojang.math.Axis;
 //#else
-//$$ import top.hendrixshen.magiclib.compat.minecraft.api.math.Vector3fCompatApi;
+//$$ import top.hendrixshen.magiclib.api.compat.mojang.math.Vector3fCompat;
+//$$ import com.mojang.math.Vector3f;
 //#endif
 
 //#if MC > 11901
@@ -60,10 +67,15 @@ import net.minecraft.network.chat.contents.*;
 
 //#if MC < 11700
 //$$ import net.minecraft.client.renderer.texture.TextureAtlas;
+//$$ import org.lwjgl.opengl.GL11;
 //#endif
 
 //#if MC < 11600
 //$$ import net.minecraft.world.level.dimension.DimensionType;
+//#endif
+
+//#if MC > 11404
+import net.minecraft.client.renderer.MultiBufferSource;
 //#endif
 
 public class HighlightWaypointUtil {
@@ -136,10 +148,10 @@ public class HighlightWaypointUtil {
         return new ParseResult(matcher.group(), new BlockPos(x, y, z), matcher.start());
     }
 
-    public static void parseMessage(@NotNull Component chat) {
-        chat.getSiblings().forEach(HighlightWaypointUtil::parseMessage);
+    public static void parseMessage(@NotNull ComponentCompat chat) {
+        chat.get().getSiblings().forEach(value -> HighlightWaypointUtil.parseMessage(ComponentCompat.of(value)));
         //#if MC > 11802
-        ComponentContents componentContents = chat.getContents();
+        ComponentContents componentContents = chat.get().getContents();
         //#endif
 
         if (
@@ -162,9 +174,9 @@ public class HighlightWaypointUtil {
 
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof Component) {
-                HighlightWaypointUtil.parseMessage((Component) args[i]);
+                HighlightWaypointUtil.parseMessage((ComponentCompat) args[i]);
             } else if (args[i] instanceof String) {
-                Component text = ComponentCompatApi.literal((String) args[i]);
+                ComponentCompat text = ComponentCompat.literal((String) args[i]);
 
                 if (HighlightWaypointUtil.updateMessage(text)) {
                     args[i] = text;
@@ -186,9 +198,9 @@ public class HighlightWaypointUtil {
         HighlightWaypointUtil.updateMessage(chat);
     }
 
-    public static boolean updateMessage(@NotNull Component chat) {
+    public static boolean updateMessage(@NotNull ComponentCompat chat) {
         //#if MC > 11802
-        ComponentContents componentContents = chat.getContents();
+        ComponentContents componentContents = chat.get().getContents();
 
         //#endif
         if (
@@ -217,48 +229,55 @@ public class HighlightWaypointUtil {
             return false;
         }
 
-        Style originalStyle = chat.getStyle();
-        ClickEvent originalClickEvent = originalStyle.getClickEvent();
-        ArrayList<Component> texts = Lists.newArrayList();
+        StyleCompat originalStyle = chat.getStyle();
+        ClickEvent originalClickEvent = originalStyle.get().getClickEvent();
+        ArrayList<ComponentCompat> texts = Lists.newArrayList();
         int prevIdx = 0;
 
         // Rebuild components.
         for (ParseResult position : positions) {
             String waypointString = position.getText();
             int waypointIdx = position.getMatcherStart();
-            texts.add(ComponentCompatApi.literal(message.substring(prevIdx, waypointIdx)).withStyle(originalStyle));
+            texts.add(ComponentCompat.literal(message.substring(prevIdx, waypointIdx)).withStyle(originalStyle));
             BlockPos pos = position.getPos();
-            texts.add(ComponentCompatApi.literal(waypointString)
+            texts.add(ComponentCompat.literal(waypointString)
                     .withStyle(ChatFormatting.GREEN)
                     .withStyle(ChatFormatting.UNDERLINE)
                     .withStyle(style -> style.withClickEvent(originalClickEvent == null ||
-                            Configs.forceParseWaypointFromChat ? new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                            Configs.forceParseWaypointFromChat.getBooleanValue() ? new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                             String.format("/%s %d %d %d", HIGHLIGHT_COMMAND, pos.getX(), pos.getY(), pos.getZ())) :
                             originalClickEvent))
                     .withStyle(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            ComponentCompatApi.literal(OhMyMinecraftClientReference.translate("highlight_waypoint.tooltip"))))));
+                        ComponentCompat.literal(OhMyMinecraftClientReference.translate("highlight_waypoint.tooltip")).get()
+                    ))));
             prevIdx = waypointIdx + waypointString.length();
         }
 
         // Add tail if existed.
         if (prevIdx < message.length()) {
-            texts.add(ComponentCompatApi.literal(message.substring(prevIdx)).withStyle(originalStyle));
+            texts.add(ComponentCompat.literal(message.substring(prevIdx)).withStyle(originalStyle));
         }
 
-        texts.forEach(chat.getSiblings()::add);
+        texts.forEach(value -> chat.get().getSiblings().add(value.get()));
         ((AccessorTextComponent) (Object) literalChatText).setText("");
         //#if MC > 11502
-        ((MutableComponent) chat).withStyle(StyleCompatApi.empty());
+        ((MutableComponent) chat).withStyle(StyleCompat.empty());
         //#else
-        //$$ ((BaseComponent) chat).withStyle(StyleCompatApi.empty());
+        //$$ ((BaseComponent) chat).withStyle();
         //#endif
         return true;
     }
 
     private static double getDistanceToEntity(@NotNull Entity entity, @NotNull BlockPos pos) {
+        //#if MC > 11404
         double dx = pos.getX() + 0.5 - entity.getX();
         double dy = pos.getY() + 0.5 - entity.getY();
         double dz = pos.getZ() + 0.5 - entity.getZ();
+        //#else
+        //$$ double dx = pos.getX() + 0.5 - entity.x;
+        //$$ double dy = pos.getY() + 0.5 - entity.y;
+        //$$ double dz = pos.getZ() + 0.5 - entity.z;
+        //#endif
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
@@ -311,7 +330,11 @@ public class HighlightWaypointUtil {
     @SuppressWarnings("all")
     public static void renderBeam(@NotNull PoseStack matrices, float tickDelta, float heightScale, long worldTime,
                                   int yOffset, int maxY, float @NotNull [] color, float innerRadius, float outerRadius) {
+        //#if MC < 12007
         ResourceLocation textureId = new ResourceLocation("textures/entity/beacon_beam.png");
+        //#else
+        //$$ ResourceLocation textureId = ResourceLocation.parse("textures/entity/beacon_beam.png");
+        //#endif
         //#if MC > 11605
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderTexture(0, textureId);
@@ -331,7 +354,7 @@ public class HighlightWaypointUtil {
         //#if MC >= 11903
         matrices.mulPose(Axis.YP.rotationDegrees(f * 2.25F - 45.0F));
         //#else
-        //$$ matrices.mulPose(Vector3fCompatApi.YP.rotationDegrees(f * 2.25F - 45.0F));
+        //$$ matrices.mulPose(Vector3fCompat.of(new Vector3f(0.0F, 1.0F, 0.0F)).rotationDegrees(f * 2.25F - 45.0F).get());
         //#endif
         float y = 0.0F;
         float ab = 0.0F;
@@ -344,11 +367,21 @@ public class HighlightWaypointUtil {
         float ai = -1.0F + h;
         float aj = (float) maxY * heightScale * (0.5F / innerRadius) + ai;
         Tesselator tesselator = Tesselator.getInstance();
+        //#if MC > 12006
+        //$$ BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+        //#else
         BufferBuilder bufferBuilder = tesselator.getBuilder();
-        bufferBuilder.begin(VertexFormatCompatApi.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferBuilder.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        //#endif
         renderBeamLayer(matrices, bufferBuilder, red, green, green, 1.0F, yOffset, i, 0.0F, innerRadius, innerRadius,
                 0.0F, ac, 0.0F, 0.0F, t, 0.0F, 1.0F, aj, ai);
+        //#if MC > 12006
+        //$$ HighlightWaypointUtil.end(bufferBuilder);
+        //$$ bufferBuilder = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+        //#else
         tesselator.end();
+        bufferBuilder.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        //#endif
         matrices.popPose();
         y = -outerRadius;
         float z = -outerRadius;
@@ -358,9 +391,20 @@ public class HighlightWaypointUtil {
         ah = 1.0F;
         ai = -1.0F + h;
         aj = (float) maxY * heightScale + ai;
-        bufferBuilder.begin(VertexFormatCompatApi.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        //#if MC > 12006
+        //$$ bufferBuilder = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+        //#else
+        bufferBuilder = tesselator.getBuilder();
+        bufferBuilder.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        //#endif
         renderBeamLayer(matrices, bufferBuilder, red, green, green, 0.125F, yOffset, i, y, z, outerRadius, ab, ac, outerRadius, outerRadius, outerRadius, 0.0F, 1.0F, aj, ai);
+        //#if MC > 12006
+        //$$ HighlightWaypointUtil.end(bufferBuilder);
+        //$$ bufferBuilder = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+        //#else
         tesselator.end();
+        bufferBuilder.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        //#endif
         matrices.popPose();
         //#if MC > 11605
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -375,9 +419,17 @@ public class HighlightWaypointUtil {
     }
 
     private static void renderBeamVertex(Matrix4f modelMatrix, Matrix3f normalMatrix, @NotNull BufferBuilder vertices, float red, float green, float blue, float alpha, int y, float x, float z, float u, float v) {
+        //#if MC > 11404
         vertices.vertex(modelMatrix, x, (float) y, z)
+        //#else
+        //$$ vertices.vertex(x, (float) y, z)
+        //#endif
                 .uv(u, v)
+                //#if MC > 12006
+                //$$ .setColor(red, green, blue, alpha);
+                //#else
                 .color(red, green, blue, alpha).endVertex();
+                //#endif
     }
 
     @SuppressWarnings("all")
@@ -394,9 +446,15 @@ public class HighlightWaypointUtil {
     public static void renderLabel(PoseStack matrixStack, double distance, @NotNull Entity cameraEntity, float tickDelta, boolean isPointedAt, @NotNull BlockPos pos) {
         Minecraft mc = Minecraft.getInstance();
         String name = String.format("x:%d, y:%d, z:%d (%dm)", pos.getX(), pos.getY(), pos.getZ(), (int) distance);
+        //#if MC > 11404
         double baseX = pos.getX() - Mth.lerp(tickDelta, cameraEntity.xo, cameraEntity.getX());
         double baseY = pos.getY() - Mth.lerp(tickDelta, cameraEntity.yo, cameraEntity.getY()) - 1.5;
         double baseZ = pos.getZ() - Mth.lerp(tickDelta, cameraEntity.zo, cameraEntity.getZ());
+        //#else
+        //$$ double baseX = pos.getX() - Mth.lerp(tickDelta, cameraEntity.xo, cameraEntity.x);
+        //$$ double baseY = pos.getY() - Mth.lerp(tickDelta, cameraEntity.yo, cameraEntity.y) - 1.5;
+        //$$ double baseZ = pos.getZ() - Mth.lerp(tickDelta, cameraEntity.zo, cameraEntity.z);
+        //#endif
         // Max render distance
         //#if MC > 11802
         double maxDistance = Minecraft.getInstance().options.renderDistance().get() * 16;
@@ -437,14 +495,17 @@ public class HighlightWaypointUtil {
         matrixStack.mulPose(Axis.YP.rotationDegrees(-cameraEntity.getYRot()));
         matrixStack.mulPose(Axis.XP.rotationDegrees(mc.getEntityRenderDispatcher().camera.getXRot()));
         //#else
-        //$$ matrixStack.mulPose(Vector3fCompatApi.YP.rotationDegrees(-cameraEntity.getYRot()));
-        //$$ matrixStack.mulPose(Vector3fCompatApi.XP.rotationDegrees(mc.getEntityRenderDispatcher().camera.getXRot()));
+            //#if MC >= 11701
+            //$$ matrixStack.mulPose(new Vector3f(0.0F, 1.0F, 0.0F).rotationDegrees(-cameraEntity.getYRot()));
+            //#else
+            //$$ matrixStack.mulPose(Vector3fCompat.of(new Vector3f(0.0F, 1.0F, 0.0F)).rotationDegrees(-cameraEntity.yRot).get());
+            //#endif
+        //$$ matrixStack.mulPose(Vector3fCompat.of(new Vector3f(1.0F, 0.0F, 0.0F)).rotationDegrees(mc.getEntityRenderDispatcher().camera.getXRot()).get());
         //#endif
         // 缩放绘制的大小，让 waypoint 根据距离缩放
         matrixStack.scale(-scale, -scale, -scale);
         Matrix4f matrix4f = matrixStack.last().pose();
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder vertexBuffer = tessellator.getBuilder();
+        Tesselator tesselator = Tesselator.getInstance();
         // 透明度
         float fade = distance < 5.0 ? 1.0f : (float) distance / 5.0f;
         fade = Math.min(fade, 1.0f);
@@ -472,43 +533,100 @@ public class HighlightWaypointUtil {
         //#if MC < 11904
         //$$ RenderSystem.enableTexture();
         //#endif
-        vertexBuffer.begin(VertexFormatCompatApi.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+
+        //#if MC > 12006
+        //$$ BufferBuilder vertexBuffer = tesselator.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        //#else
+        BufferBuilder vertexBuffer = tesselator.getBuilder();
+        vertexBuffer.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        //#endif
+        //#if MC > 12006
+        //$$ vertexBuffer.addVertex(matrix4f, -xWidth, -yWidth, 0.0f).setUv(icon.getU0(), icon.getV0()).setColor(iconR, iconG, iconB, fade);
+        //$$ vertexBuffer.addVertex(matrix4f, -xWidth, yWidth, 0.0f).setUv(icon.getU0(), icon.getV1()).setColor(iconR, iconG, iconB, fade);
+        //$$ vertexBuffer.addVertex(matrix4f, xWidth, yWidth, 0.0f).setUv(icon.getU1(), icon.getV1()).setColor(iconR, iconG, iconB, fade);
+        //$$ vertexBuffer.addVertex(matrix4f, xWidth, -yWidth, 0.0f).setUv(icon.getU1(), icon.getV0()).setColor(iconR, iconG, iconB, fade);
+        //$$ HighlightWaypointUtil.end(vertexBuffer);
+        //$$ vertexBuffer = tesselator.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        //#elseif MC < 11502
+        //$$ vertexBuffer.vertex(-xWidth, -yWidth, 0.0f).uv(icon.getU0(), icon.getV0()).color(iconR, iconG, iconB, fade).endVertex();
+        //$$ vertexBuffer.vertex(-xWidth, yWidth, 0.0f).uv(icon.getU0(), icon.getV1()).color(iconR, iconG, iconB, fade).endVertex();
+        //$$ vertexBuffer.vertex(xWidth, yWidth, 0.0f).uv(icon.getU1(), icon.getV1()).color(iconR, iconG, iconB, fade).endVertex();
+        //$$ vertexBuffer.vertex(xWidth, -yWidth, 0.0f).uv(icon.getU1(), icon.getV0()).color(iconR, iconG, iconB, fade).endVertex();
+        //#else
         vertexBuffer.vertex(matrix4f, -xWidth, -yWidth, 0.0f).uv(icon.getU0(), icon.getV0()).color(iconR, iconG, iconB, fade).endVertex();
         vertexBuffer.vertex(matrix4f, -xWidth, yWidth, 0.0f).uv(icon.getU0(), icon.getV1()).color(iconR, iconG, iconB, fade).endVertex();
         vertexBuffer.vertex(matrix4f, xWidth, yWidth, 0.0f).uv(icon.getU1(), icon.getV1()).color(iconR, iconG, iconB, fade).endVertex();
         vertexBuffer.vertex(matrix4f, xWidth, -yWidth, 0.0f).uv(icon.getU1(), icon.getV0()).color(iconR, iconG, iconB, fade).endVertex();
-        tessellator.end();
+        tesselator.end();
+        //#endif
+
         //#if MC < 11904
         //$$ RenderSystem.disableTexture();
         //#endif
 
         Font textRenderer = mc.font;
-        if (isPointedAt && textRenderer != null) {
+        FontCompat fontCompat = FontCompat.of(textRenderer);
+        if (isPointedAt) {
             // 渲染高度
             int elevateBy = -19;
             RenderSystem.enablePolygonOffset();
-            int halfStringWidth = textRenderer.width(name) / 2;
+            int halfStringWidth = fontCompat.width(ComponentCompat.literal(name).get()) / 2;
             //#if MC > 11605
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
             //#endif
 
             // 渲染内框
             RenderSystem.polygonOffset(1.0f, 11.0f);
-            vertexBuffer.begin(VertexFormatCompatApi.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            //#if MC > 12006
+            //$$ vertexBuffer = tesselator.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            //#else
+            vertexBuffer = tesselator.getBuilder();
+            vertexBuffer.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            //#endif
+            //#if MC > 12006
+            //$$ vertexBuffer.addVertex(matrix4f, -halfStringWidth - 2, -2 + elevateBy, 0.0f).setColor(textFieldR, textFieldG, textFieldB, 0.6f * fade);
+            //$$ vertexBuffer.addVertex(matrix4f, -halfStringWidth - 2, 9 + elevateBy, 0.0f).setColor(textFieldR, textFieldG, textFieldB, 0.6f * fade);
+            //$$ vertexBuffer.addVertex(matrix4f, halfStringWidth + 2, 9 + elevateBy, 0.0f).setColor(textFieldR, textFieldG, textFieldB, 0.6f * fade);
+            //$$ vertexBuffer.addVertex(matrix4f, halfStringWidth + 2, -2 + elevateBy, 0.0f).setColor(textFieldR, textFieldG, textFieldB, 0.6f * fade);
+            //#elseif MC < 11502
+            //$$ vertexBuffer.vertex(-halfStringWidth - 2, -2 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
+            //$$ vertexBuffer.vertex(-halfStringWidth - 2, 9 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
+            //$$ vertexBuffer.vertex(halfStringWidth + 2, 9 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
+            //$$ vertexBuffer.vertex(halfStringWidth + 2, -2 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
+            //#else
             vertexBuffer.vertex(matrix4f, -halfStringWidth - 2, -2 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
             vertexBuffer.vertex(matrix4f, -halfStringWidth - 2, 9 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
             vertexBuffer.vertex(matrix4f, halfStringWidth + 2, 9 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
             vertexBuffer.vertex(matrix4f, halfStringWidth + 2, -2 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
-            tessellator.end();
+            tesselator.end();
+            //#endif
 
             // 渲染外框
             RenderSystem.polygonOffset(1.0f, 9.0f);
-            vertexBuffer.begin(VertexFormatCompatApi.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            //#if MC > 12006
+            //$$ vertexBuffer = tesselator.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            //#else
+            vertexBuffer = tesselator.getBuilder();
+            vertexBuffer.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            //#endif
+            //#if MC > 12006
+            //$$ vertexBuffer.addVertex(matrix4f, -halfStringWidth - 1, -1 + elevateBy, 0.0f).setColor(0.0f, 0.0f, 0.0f, 0.15f * fade);
+            //$$ vertexBuffer.addVertex(matrix4f, -halfStringWidth - 1, 8 + elevateBy, 0.0f).setColor(0.0f, 0.0f, 0.0f, 0.15f * fade);
+            //$$ vertexBuffer.addVertex(matrix4f, halfStringWidth + 1, 8 + elevateBy, 0.0f).setColor(0.0f, 0.0f, 0.0f, 0.15f * fade);
+            //$$ vertexBuffer.addVertex(matrix4f, halfStringWidth + 1, -1 + elevateBy, 0.0f).setColor(0.0f, 0.0f, 0.0f, 0.15f * fade);
+            //#elseif MC < 11502
+            //$$ vertexBuffer.vertex(-halfStringWidth - 1, -1 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
+            //$$ vertexBuffer.vertex(-halfStringWidth - 1, 8 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
+            //$$ vertexBuffer.vertex(halfStringWidth + 1, 8 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
+            //$$ vertexBuffer.vertex(halfStringWidth + 1, -1 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
+            //#else
             vertexBuffer.vertex(matrix4f, -halfStringWidth - 1, -1 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
             vertexBuffer.vertex(matrix4f, -halfStringWidth - 1, 8 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
             vertexBuffer.vertex(matrix4f, halfStringWidth + 1, 8 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
             vertexBuffer.vertex(matrix4f, halfStringWidth + 1, -1 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
-            tessellator.end();
+            tesselator.end();
+            //#endif
+
             RenderSystem.disablePolygonOffset();
 
             // 渲染文字
@@ -517,7 +635,21 @@ public class HighlightWaypointUtil {
             //#endif
             int textColor = (int) (255.0f * fade) << 24 | 0xCCCCCC;
             RenderSystem.disableDepthTest();
-            textRenderer.drawInBatch(ComponentCompatApi.literal(name), (float) (-textRenderer.width(name) / 2), elevateBy, textColor, false, matrix4f, true, 0, 0xF000F0);
+            fontCompat.drawInBatch(
+                ComponentCompat.literal(name).get().toString(),
+                (float) (-textRenderer.width(name) / 2),
+                (float) elevateBy, textColor,
+                //#if MC > 12006
+                //$$ false, matrix4f, MultiBufferSource.immediate(((AccessorBufferBuilder) (Object) vertexBuffer).getBuffer()),
+                //#else
+                false,
+                    //#if MC > 11404
+                    matrix4f, MultiBufferSource.immediate(vertexBuffer),
+                    //#endif
+                //#endif
+                FontCompat.DisplayMode.SEE_THROUGH,
+                0,
+                0xF000F0);
         }
         //#if MC > 11605
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -549,7 +681,7 @@ public class HighlightWaypointUtil {
         }
 
         if (directHighlight || !posChanged) {
-            HighlightWaypointUtil.lastBeamTime = System.currentTimeMillis() + Configs.highlightBeamTime * 1000L;
+            HighlightWaypointUtil.lastBeamTime = System.currentTimeMillis() + Configs.highlightBeamTime.getIntegerValue() * 1000L;
         }
     }
 
@@ -583,20 +715,29 @@ public class HighlightWaypointUtil {
     private static boolean inOverworld(@NotNull Player player) {
         return
                 //#if MC > 11502
-                player.getLevelCompat().dimension() == Level.OVERWORLD;
+                EntityCompat.of(player).getLevel().get().dimension() == Level.OVERWORLD;
                 //#else
-                //$$ player.getLevelCompat().getDimension().getType() == DimensionType.OVERWORLD;
+                //$$ EntityCompat.of(player).getLevel().get().getDimension().getType() == DimensionType.OVERWORLD;
                 //#endif
     }
 
     private static boolean inNether(@NotNull Player player) {
         return
                 //#if MC > 11502
-                player.getLevelCompat().dimension() == Level.NETHER;
+                EntityCompat.of(player).getLevel().get().dimension() == Level.NETHER;
                 //#else
-                //$$ player.getLevelCompat().getDimension().getType() == DimensionType.NETHER;
+                //$$ EntityCompat.of(player).getLevel().get().getDimension().getType() == DimensionType.NETHER;
                 //#endif
     }
+
+    //#if MC > 12006
+    //$$ private static void end(BufferBuilder builder) {
+    //$$     try (MeshData meshData = builder.buildOrThrow()) {
+    //$$         BufferUploader.drawWithShader(meshData);
+    //$$     } catch (Exception ignore) {
+    //$$     }
+    //$$ }
+    //#endif
 
     @Getter
     @AllArgsConstructor

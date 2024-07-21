@@ -22,7 +22,7 @@ public class MixinClientPlayerInteractionManager {
                     opcode = Opcodes.PUTFIELD,
                     ordinal = 2, shift = At.Shift.AFTER))
     private void removeBreakingCooldown(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
-        if (Configs.removeBreakingCooldown && !Configs.forceBreakingCooldown) {
+        if (Configs.removeBreakingCooldown.getBooleanValue() && !Configs.forceBreakingCooldown.getBooleanValue()) {
             destroyDelay = 0;
         }
     }

@@ -10,10 +10,10 @@ import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependencies;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
 
-@Dependencies(and = @Dependency(value = "sodium", versionPredicate = "~0.5"))
+@Dependencies(require = @Dependency(value = "sodium", versionPredicates = "~0.5"))
 @Mixin(value = BlockRenderer.class, remap = false)
 public class MixinBlockRenderer_0_5 {
     @Dynamic

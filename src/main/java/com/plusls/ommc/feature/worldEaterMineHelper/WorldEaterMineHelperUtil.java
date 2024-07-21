@@ -34,13 +34,16 @@ public class WorldEaterMineHelperUtil {
         //#else
         //$$ String blockId = Registry.BLOCK.getKey(block).toString();
         //#endif
-        return Configs.worldEaterMineHelperWhitelist.stream().anyMatch(s -> blockId.contains(s) || blockName.contains(s));
+        return Configs.worldEaterMineHelperWhitelist
+            .getStrings()
+            .stream()
+            .anyMatch(s -> blockId.contains(s) || blockName.contains(s));
     }
 
     public static boolean shouldUseCustomModel(BlockState blockState, BlockPos pos) {
         Block block = blockState.getBlock();
         // ModInfo.LOGGER.debug("test model {} {}", pos, block);
-        if (Configs.worldEaterMineHelper && blockInWorldEaterMineHelperWhitelist(block)) {
+        if (Configs.worldEaterMineHelper.getBooleanValue() && blockInWorldEaterMineHelperWhitelist(block)) {
             ClientLevel world = Minecraft.getInstance().level;
             if (world != null) {
                 int x = pos.getX();

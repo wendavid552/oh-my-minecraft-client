@@ -76,7 +76,7 @@ public class LavaSourceResourceLoader implements SimpleSynchronousResourceReload
         defaultLavaSourceSpites[1] = defaultLavaSourceFlowSprite;
         FluidRenderHandler lavaSourceRenderHandler = (view, pos, state) -> {
 
-            if (view != null && pos != null && Configs.highlightLavaSource) {
+            if (view != null && pos != null && Configs.highlightLavaSource.getBooleanValue()) {
                 BlockState blockState = view.getBlockState(pos);
                 if (blockState.hasProperty(LiquidBlock.LEVEL) && blockState.getValue(LiquidBlock.LEVEL) == 0) {
                     return lavaSourceSpites;

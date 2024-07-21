@@ -11,7 +11,7 @@ import java.util.UUID;
 //#if MC > 11502
 import net.minecraft.client.gui.screens.social.PlayerSocialManager;
 //#else
-//$$ import top.hendrixshen.magiclib.compat.preprocess.api.DummyClass;
+//$$ import top.hendrixshen.magiclib.api.preprocess.DummyClass;
 //#endif
 
 //#if MC > 11502
@@ -23,7 +23,7 @@ public class MixinSocialInteractionsManager {
     //#if MC > 11502
     @Inject(method = "isBlocked", at = @At("HEAD"), cancellable = true)
     public void disableBlocklistCheck(UUID uuid, CallbackInfoReturnable<Boolean> cir) {
-        if (Configs.disableBlocklistCheck) {
+        if (Configs.disableBlocklistCheck.getBooleanValue()) {
             cir.setReturnValue(false);
         }
     }

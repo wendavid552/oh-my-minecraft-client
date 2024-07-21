@@ -44,7 +44,7 @@ public class MixinEntity {
 
     @Inject(method = "isCurrentlyGlowing", at = @At(value = "RETURN"), cancellable = true)
     private void checkWanderingTraderEntity(CallbackInfoReturnable<Boolean> cir) {
-        if (Configs.highlightPersistentMob && !cir.getReturnValue()) {
+        if (Configs.highlightPersistentMob.getBooleanValue() && !cir.getReturnValue()) {
             Entity entity = getBestEntity(MiscUtil.cast(this));
             if (entity instanceof Mob) {
                 Mob mobEntity = (Mob) entity;
@@ -52,7 +52,7 @@ public class MixinEntity {
                     cir.setReturnValue(true);
                     return;
                 }
-                if (!Configs.highlightPersistentMobClientMode) {
+                if (!Configs.highlightPersistentMobClientMode.getBooleanValue()) {
                     return;
                 }
                 //#if MC >= 11903

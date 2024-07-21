@@ -10,10 +10,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependencies;
 
-@Dependencies(and = @Dependency(value = "sodium", versionPredicate = "<0.4.9"))
+@Dependencies(require = @Dependency(value = "sodium", versionPredicates = "<0.4.9"))
 @Pseudo
 @Mixin(targets = "me.jellysquid.mods.sodium.client.render.pipeline.BlockRenderer", remap = false)
 public class MixinBlockRendererLegacy {

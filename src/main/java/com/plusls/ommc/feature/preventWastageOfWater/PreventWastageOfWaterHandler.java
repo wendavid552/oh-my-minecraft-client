@@ -22,7 +22,7 @@ public class PreventWastageOfWaterHandler implements UseItemCallback {
     //#if MC > 11404
     @Override
     public InteractionResultHolder<ItemStack> interact(Player player, Level world, InteractionHand hand) {
-        return (Configs.preventWastageOfWater
+        return (Configs.preventWastageOfWater.getBooleanValue()
                 && world.isClientSide
                 && player.getItemInHand(hand).getItem() == Items.WATER_BUCKET
                 //#if MC > 11502

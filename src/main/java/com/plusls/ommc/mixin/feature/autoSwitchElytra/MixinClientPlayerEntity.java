@@ -48,14 +48,24 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayer {
     @SuppressWarnings("ConstantConditions")
     @Inject(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getItemBySlot(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/ItemStack;", ordinal = 0))
     private void autoSwitchElytra(CallbackInfo ci) {
-        if (!Configs.autoSwitchElytra) {
+        if (!Configs.autoSwitchElytra.getBooleanValue()) {
             return;
         }
         ItemStack chestItemStack = this.getItemBySlot(EquipmentSlot.CHEST);
+        //#if MC > 11605
         if (chestItemStack.is(Items.ELYTRA) || !AutoSwitchElytraUtil.myCheckFallFlying(this)) {
+        //#else
+        //$$ if (chestItemStack.getItem() == Items.ELYTRA || !AutoSwitchElytraUtil.myCheckFallFlying(this)) {
+        //#endif
             return;
         }
-        AutoSwitchElytraUtil.autoSwitch(AutoSwitchElytraUtil.CHEST_SLOT_IDX, this.minecraft, (LocalPlayer) (Object) this, itemStack -> itemStack.is(Items.ELYTRA));
+        AutoSwitchElytraUtil.autoSwitch(AutoSwitchElytraUtil.CHEST_SLOT_IDX, this.minecraft, (LocalPlayer) (Object) this, itemStack ->
+            //#if MC > 11605
+            itemStack.is(Items.ELYTRA)
+            //#else
+            //$$ itemStack.getItem() == Items.ELYTRA
+            //#endif
+        );
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -67,11 +77,15 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayer {
             //#endif
     ))
     private void autoSwitchChest(CallbackInfo ci) {
-        if (!Configs.autoSwitchElytra) {
+        if (!Configs.autoSwitchElytra.getBooleanValue()) {
             return;
         }
         ItemStack chestItemStack = this.getItemBySlot(EquipmentSlot.CHEST);
+        //#if MC > 11605
         if (!chestItemStack.is(Items.ELYTRA) || !prevFallFlying || this.isFallFlying()) {
+        //#else
+        //$$ if (!(chestItemStack.getItem() == Items.ELYTRA) || !prevFallFlying || this.isFallFlying()) {
+        //#endif
             prevFallFlying = this.isFallFlying();
             return;
         }

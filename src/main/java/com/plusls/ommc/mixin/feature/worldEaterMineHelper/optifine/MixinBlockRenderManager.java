@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependencies;
 
 
 //#if MC > 11802
@@ -30,7 +30,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 //#endif
 
 // 兼容 opt
-@Dependencies(and = @Dependency("optifabric"))
+@Dependencies(require = @Dependency("optifabric"))
 @Mixin(BlockRenderDispatcher.class)
 public class MixinBlockRenderManager {
     // TODO 开摆

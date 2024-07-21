@@ -12,17 +12,17 @@ public abstract class MixinIntegratedServer {
     @ModifyArg(method = "initServer",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/server/IntegratedServer;setUsesAuthentication(Z)V", ordinal = 0), index = 0)
     private boolean modifySetOnlineModeArg(boolean onlineMode) {
-        return Configs.onlineMode;
+        return Configs.onlineMode.getBooleanValue();
     }
 
     @ModifyArg(method = "initServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/server/IntegratedServer;setPvpAllowed(Z)V", ordinal = 0), index = 0)
     private boolean modifySetPvpEnabledArg(boolean arg) {
-        return Configs.pvp;
+        return Configs.pvp.getBooleanValue();
     }
 
     @ModifyArg(method = "initServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/server/IntegratedServer;setFlightAllowed(Z)V", ordinal = 0), index = 0)
     private boolean modifySetFlightEnabledArg(boolean arg) {
-        return Configs.flight;
+        return Configs.flight.getBooleanValue();
     }
 
 }

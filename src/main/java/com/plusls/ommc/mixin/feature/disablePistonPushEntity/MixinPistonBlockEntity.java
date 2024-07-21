@@ -22,7 +22,7 @@ public class MixinPistonBlockEntity {
     //#else
     //$$ private List<Entity> removeNoPlayerEntity(Level world, Entity except, AABB box) {
     //#endif
-        if (world.isClientSide() && Configs.disablePistonPushEntity) {
+        if (world.isClientSide() && Configs.disablePistonPushEntity.getBooleanValue()) {
             LocalPlayer playerEntity = Minecraft.getInstance().player;
             if (playerEntity != null && !playerEntity.isSpectator() &&
                     playerEntity.getBoundingBox().intersects(box)

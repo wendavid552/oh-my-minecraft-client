@@ -31,7 +31,7 @@ public class MixinScaffoldingBlock {
     @Inject(method = "getCollisionShape", at = @At(value = "RETURN"), cancellable = true)
     private void setNormalOutlineShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context, CallbackInfoReturnable<VoxelShape> cir) {
         if (cir.getReturnValue() != STABLE_SHAPE) {
-            if (Configs.disableMoveDownInScaffolding &&
+            if (Configs.disableMoveDownInScaffolding.getBooleanValue() &&
                     context.isDescending() && context.isAbove(Shapes.block(), pos, true)) {
                 assert Minecraft.getInstance().player != null;
                 Item item = Minecraft.getInstance().player.getMainHandItem().getItem();
@@ -41,7 +41,11 @@ public class MixinScaffoldingBlock {
                 //$$ String itemId = Registry.ITEM.getKey(item).toString();
                 //#endif
                 String itemName = item.getDescription().getString();
-                if (Configs.moveDownInScaffoldingWhiteList.stream().anyMatch(s -> itemId.contains(s) || itemName.contains(s))) {
+                if (Configs.moveDownInScaffoldingWhiteList
+                    .getStrings()
+                    .stream()
+                    .anyMatch(s -> itemId.contains(s) || itemName.contains(s))
+                ) {
                     return;
                 }
                 cir.setReturnValue(STABLE_SHAPE);

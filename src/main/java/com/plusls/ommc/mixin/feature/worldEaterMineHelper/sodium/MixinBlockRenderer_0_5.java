@@ -14,14 +14,14 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependencies;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
 
 @Dependencies(
-        and = {
-                @Dependency(value = "minecraft", versionPredicate = ">1.19.4"),
+        require = {
+                @Dependency(value = "minecraft", versionPredicates = ">1.19.4"),
                 // TODO: Once sodium 0.5+ backport to MC 1.19.4 and below, we can compat it.
-                @Dependency(value = "sodium", versionPredicate = "~0.5")
+                @Dependency(value = "sodium", versionPredicates = "~0.5")
         }
 )
 @Mixin(value = BlockRenderer.class, remap = false)
@@ -45,7 +45,7 @@ public abstract class MixinBlockRenderer_0_5 {
 
             if (customModel != null) {
                 this.ommc$renderTag.set(true);
-                // This impl will break light system, so disable it.
+                // This impl will break light systems, so disable it.
                 // int originalLightEmission = ctx.state().getLightEmission();
                 BakedModel originalModel = ctx.model();
                 // ((AccessorBlockStateBase) ctx.state()).setLightEmission(15);

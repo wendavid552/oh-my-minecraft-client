@@ -33,7 +33,7 @@ public class MixinClientPlayerInteractionManager {
             remap = false
     )
     private void addBreakingCooldown(BlockState blockState, BlockPos blockPos, Direction direction, int i, CallbackInfoReturnable<Packet<ServerGamePacketListener>> cir) {
-        if (Configs.forceBreakingCooldown) {
+        if (Configs.forceBreakingCooldown.getBooleanValue()) {
             destroyDelay = 5;
         }
     }

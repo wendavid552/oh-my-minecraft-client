@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.Window;
 import com.plusls.ommc.api.sortInventory.IDyeBlock;
 import com.plusls.ommc.config.Configs;
 import com.plusls.ommc.mixin.accessor.AccessorAbstractContainerScreen;
+import com.plusls.ommc.mixin.accessor.AccessorSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
@@ -26,7 +27,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.MapColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import top.hendrixshen.magiclib.compat.minecraft.api.world.item.ItemStackCompatApi;
+//#if MC > 12005
+//$$ import net.minecraft.world.item.component.CustomData;
+//$$ import net.minecraft.core.component.DataComponents;
+//#endif
+import top.hendrixshen.magiclib.api.compat.minecraft.world.item.ItemStackCompat;
 
 import java.util.Comparator;
 import java.util.List;
@@ -106,9 +111,15 @@ public class SortInventoryUtil {
     public static Tuple<Integer, Integer> getSortRange(AbstractContainerMenu screenHandler, @NotNull Slot mouseSlot) {
         int mouseIdx = mouseSlot.index;
 
+        //#if MC > 11605
         if (mouseIdx == 0 && mouseSlot.getContainerSlot() != 0) {
             mouseIdx = mouseSlot.getContainerSlot();
         }
+        //#else
+        //$$ if (mouseIdx == 0 && ((AccessorSlot) mouseSlot).getSlot() != 0) {
+        //$$     mouseIdx = ((AccessorSlot) mouseSlot).getSlot();
+        //$$ }
+        //#endif
 
         int l = mouseIdx;
         int r = mouseIdx + 1;
@@ -228,7 +239,7 @@ public class SortInventoryUtil {
 
     private static boolean canStackAddMore(@NotNull ItemStack existingStack, ItemStack stack) {
         return !existingStack.isEmpty() &&
-                ItemStackCompatApi.isSameItemSameTags(existingStack, stack) &&
+                ItemStackCompat.isSameItemSameTags(existingStack, stack) &&
                 ShulkerBoxItemUtil.isStackable(existingStack) &&
                 existingStack.getCount() < ShulkerBoxItemUtil.getMaxCount(existingStack) &&
                 existingStack.getCount() < 64;
@@ -396,8 +407,8 @@ public class SortInventoryUtil {
             int aId = SortInventoryUtil.getItemId(a);
             int bId = SortInventoryUtil.getItemId(b);
 
-            if (Configs.sortInventoryShulkerBoxLast == Configs.SortInventoryShulkerBoxLastType.TRUE ||
-                    (Configs.sortInventoryShulkerBoxLast == Configs.SortInventoryShulkerBoxLastType.AUTO &&
+            if (Configs.sortInventoryShulkerBoxLast.getOptionListValue() == Configs.SortInventoryShulkerBoxLastType.TRUE ||
+                    (Configs.sortInventoryShulkerBoxLast.getOptionListValue() == Configs.SortInventoryShulkerBoxLastType.AUTO &&
                             !allShulkerBox)) {
                 if (ShulkerBoxItemUtil.isShulkerBoxBlockItem(a) && !ShulkerBoxItemUtil.isShulkerBoxBlockItem(b)) {
                     return 1;
@@ -406,9 +417,19 @@ public class SortInventoryUtil {
                 }
             }
 
+            //#if MC < 12005
+            CompoundTag tagA = a.getTag();
+            CompoundTag tagB = b.getTag();
+            //#else
+            //$$ CustomData dataA = a.get(DataComponents.CUSTOM_DATA);
+            //$$ CustomData dataB = b.get(DataComponents.CUSTOM_DATA);
+            //$$ CompoundTag tagA = dataA.copyTag();
+            //$$ CompoundTag tagB = dataB.copyTag();
+            //#endif
+
             if (ShulkerBoxItemUtil.isShulkerBoxBlockItem(a) && ShulkerBoxItemUtil.isShulkerBoxBlockItem(b) &&
                     a.getItem() == b.getItem()) {
-                return -ShulkerBoxItemUtil.compareShulkerBox(a.getTag(), b.getTag());
+                return -ShulkerBoxItemUtil.compareShulkerBox(tagA, tagB);
             }
 
             if (a.getItem() instanceof BlockItem && b.getItem() instanceof BlockItem) {
@@ -466,13 +487,13 @@ public class SortInventoryUtil {
 
             if (aId == bId) {
                 // 有 nbt 标签的排在前面
-                if (!a.hasTag() && b.hasTag()) {
+                if (!hasTag(a) && hasTag(b)) {
                     return 1;
-                } else if (a.hasTag() && !b.hasTag()) {
+                } else if (hasTag(a) && !hasTag(b)) {
                     return -1;
-                } else if (a.hasTag()) {
+                } else if (hasTag(a)) {
                     // 如果都有 nbt 的话，确保排序后相邻的物品 nbt 标签一致
-                    return Objects.compare(a.getTag(), b.getTag(), Comparator.comparingInt(CompoundTag::hashCode));
+                    return Objects.compare(tagA, tagB, Comparator.comparingInt(CompoundTag::hashCode));
                 }
 
                 // 物品少的排在后面
@@ -481,5 +502,17 @@ public class SortInventoryUtil {
 
             return aId - bId;
         }
+    }
+
+    public static boolean hasTag(ItemStack itemStack) {
+        //#if MC < 12005
+        return itemStack.hasTag();
+        //#else
+        //$$ CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
+        //$$ if (data != null) {
+        //$$     return !itemStack.isEmpty() && !data.copyTag().isEmpty();
+        //$$ }
+        //$$ return false;
+        //#endif
     }
 }
