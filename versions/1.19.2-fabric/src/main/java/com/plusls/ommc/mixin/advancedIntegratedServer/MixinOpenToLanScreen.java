@@ -24,7 +24,7 @@ public class MixinOpenToLanScreen {
             remap = false
     )
     private int modifyPort(int port) {
-        int ret = Configs.port;
+        int ret = Configs.port.getIntegerValue();
 
         if (ret == 0) {
             ret = port;

@@ -48,7 +48,7 @@ public class MixinClientPlayerInteractionManager {
     //$$                 //#endif
     //$$         ))
     //$$ private void addBreakingCooldown(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
-    //$$     if (Configs.forceBreakingCooldown) {
+    //$$     if (Configs.forceBreakingCooldown.getBooleanValue()) {
     //$$         destroyDelay = 5;
     //$$     }
     //$$ }
