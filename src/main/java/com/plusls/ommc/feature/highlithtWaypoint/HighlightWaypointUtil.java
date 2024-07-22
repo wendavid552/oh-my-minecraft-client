@@ -174,7 +174,7 @@ public class HighlightWaypointUtil {
 
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof Component) {
-                HighlightWaypointUtil.parseMessage((ComponentCompat) args[i]);
+                HighlightWaypointUtil.parseMessage(ComponentCompat.literal(((Component) args[i]).getString()));
             } else if (args[i] instanceof String) {
                 ComponentCompat text = ComponentCompat.literal((String) args[i]);
 
@@ -261,7 +261,7 @@ public class HighlightWaypointUtil {
         texts.forEach(value -> chat.get().getSiblings().add(value.get()));
         ((AccessorTextComponent) (Object) literalChatText).setText("");
         //#if MC > 11502
-        ((MutableComponent) chat).withStyle(StyleCompat.empty());
+        ((MutableComponent) chat.get()).withStyle(StyleCompat.empty());
         //#else
         //$$ ((BaseComponent) chat).withStyle();
         //#endif

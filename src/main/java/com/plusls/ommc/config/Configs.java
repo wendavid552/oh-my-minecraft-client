@@ -313,12 +313,12 @@ public class Configs {
             () -> Optional.ofNullable(SortInventoryUtil.sort()).ifPresent(Runnable::run), false);
 
         // FEATURE_TOGGLE
-        cf.newConfigBoolean("highlightLavaSource", false).setValueChangeCallback(option -> {
+        highlightLavaSource.setValueChangeCallback(option -> {
             OhMyMinecraftClientReference.getLogger().debug("set highlightLavaSource {}", option.getBooleanValue());
             Minecraft.getInstance().levelRenderer.allChanged();
         });
 
-        cf.newConfigBoolean("worldEaterMineHelper", false).setValueChangeCallback(option -> {
+        worldEaterMineHelper.setValueChangeCallback(option -> {
             OhMyMinecraftClientReference.getLogger().debug("set worldEaterMineHelper {}", option.getBooleanValue());
             Minecraft.getInstance().levelRenderer.allChanged();
         });

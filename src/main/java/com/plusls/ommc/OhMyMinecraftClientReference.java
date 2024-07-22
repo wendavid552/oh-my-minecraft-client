@@ -36,7 +36,7 @@ public class OhMyMinecraftClientReference {
     public static MagicConfigHandler configHandler = new MagicConfigHandler(configManager, 1);
 
     public static String translate(String key, Object... objects) {
-        return I18n.tr(OhMyMinecraftClientReference.modIdentifier + "." + key, objects);
+        return I18n.tr(OhMyMinecraftClientReference.getModIdentifier() + "." + key, objects);
     }
 
     public static @NotNull
@@ -46,7 +46,7 @@ public class OhMyMinecraftClientReference {
     //$$ BaseComponent
     //#endif
     translatable(String key, Object... objects) {
-        return ComponentCompat.translatable(OhMyMinecraftClientReference.modIdentifier + "." + key, objects)
+        return ComponentCompat.translatable(OhMyMinecraftClientReference.getModIdentifier() + "." + key, objects)
             //#if MC <= 11502
             //$$ .get()
             //#endif
@@ -56,9 +56,9 @@ public class OhMyMinecraftClientReference {
     @Contract(value = "_ -> new", pure = true)
     public static @NotNull ResourceLocation identifier(String path) {
         //#if MC < 12100
-        return new ResourceLocation(OhMyMinecraftClientReference.modIdentifier, path);
+        return new ResourceLocation(OhMyMinecraftClientReference.getModIdentifier(), path);
         //#else
-        //$$ return ResourceLocation.fromNamespaceAndPath(OhMyMinecraftClientReference.modIdentifier, path);
+        //$$ return ResourceLocation.fromNamespaceAndPath(OhMyMinecraftClientReference.getModIdentifier(), path);
         //#endif
     }
 }
