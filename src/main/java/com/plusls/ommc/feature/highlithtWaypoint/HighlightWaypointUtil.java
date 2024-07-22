@@ -44,10 +44,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-//#if MC > 12006
-//$$ import com.plusls.ommc.mixin.accessor.AccessorBufferBuilder;
-//#endif
-
 //#if MC > 11902
 import com.mojang.math.Axis;
 //#else
@@ -76,6 +72,7 @@ import net.minecraft.network.chat.contents.*;
 
 //#if MC > 11404
 import net.minecraft.client.renderer.MultiBufferSource;
+import top.hendrixshen.magiclib.util.minecraft.render.RenderUtil;
 //#endif
 
 public class HighlightWaypointUtil {
@@ -366,21 +363,33 @@ public class HighlightWaypointUtil {
         float ah = 1.0F;
         float ai = -1.0F + h;
         float aj = (float) maxY * heightScale * (0.5F / innerRadius) + ai;
+
         Tesselator tesselator = Tesselator.getInstance();
+
         //#if MC > 12006
         //$$ BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
         //#else
         BufferBuilder bufferBuilder = tesselator.getBuilder();
-        bufferBuilder.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        HighlightWaypointUtil.beginLines(bufferBuilder);
         //#endif
-        renderBeamLayer(matrices, bufferBuilder, red, green, green, 1.0F, yOffset, i, 0.0F, innerRadius, innerRadius,
-                0.0F, ac, 0.0F, 0.0F, t, 0.0F, 1.0F, aj, ai);
+        renderBeamLayer(
+            matrices, bufferBuilder,
+            red, green,
+            green, 1.0F,
+            yOffset, i,
+            0.0F, innerRadius,
+            innerRadius, 0.0F,
+            ac, 0.0F,
+            0.0F, t,
+            0.0F, 1.0F,
+            aj, ai);
         //#if MC > 12006
         //$$ HighlightWaypointUtil.end(bufferBuilder);
         //$$ bufferBuilder = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
         //#else
         tesselator.end();
-        bufferBuilder.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        // Box2
+        HighlightWaypointUtil.beginLines(bufferBuilder);
         //#endif
         matrices.popPose();
         y = -outerRadius;
@@ -392,18 +401,27 @@ public class HighlightWaypointUtil {
         ai = -1.0F + h;
         aj = (float) maxY * heightScale + ai;
         //#if MC > 12006
-        //$$ bufferBuilder = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
-        //#else
-        bufferBuilder = tesselator.getBuilder();
-        bufferBuilder.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        //#endif
-        renderBeamLayer(matrices, bufferBuilder, red, green, green, 0.125F, yOffset, i, y, z, outerRadius, ab, ac, outerRadius, outerRadius, outerRadius, 0.0F, 1.0F, aj, ai);
-        //#if MC > 12006
         //$$ HighlightWaypointUtil.end(bufferBuilder);
         //$$ bufferBuilder = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
         //#else
         tesselator.end();
-        bufferBuilder.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        HighlightWaypointUtil.beginLines(bufferBuilder);
+        //#endif
+        renderBeamLayer(
+            matrices, bufferBuilder,
+            red, green,
+            green, 0.125F,
+            yOffset, i,
+            y, z,
+            outerRadius, ab,
+            ac, outerRadius,
+            outerRadius, outerRadius,
+            0.0F, 1.0F,
+            aj, ai);
+        //#if MC > 12006
+        //$$ HighlightWaypointUtil.end(bufferBuilder);
+        //#else
+        tesselator.end();
         //#endif
         matrices.popPose();
         //#if MC > 11605
@@ -505,7 +523,6 @@ public class HighlightWaypointUtil {
         // 缩放绘制的大小，让 waypoint 根据距离缩放
         matrixStack.scale(-scale, -scale, -scale);
         Matrix4f matrix4f = matrixStack.last().pose();
-        Tesselator tesselator = Tesselator.getInstance();
         // 透明度
         float fade = distance < 5.0 ? 1.0f : (float) distance / 5.0f;
         fade = Math.min(fade, 1.0f);
@@ -534,11 +551,12 @@ public class HighlightWaypointUtil {
         //$$ RenderSystem.enableTexture();
         //#endif
 
+        Tesselator tesselator = Tesselator.getInstance();
         //#if MC > 12006
         //$$ BufferBuilder vertexBuffer = tesselator.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         //#else
         BufferBuilder vertexBuffer = tesselator.getBuilder();
-        vertexBuffer.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        HighlightWaypointUtil.beginLines(vertexBuffer);
         //#endif
         //#if MC > 12006
         //$$ vertexBuffer.addVertex(matrix4f, -xWidth, -yWidth, 0.0f).setUv(icon.getU0(), icon.getV0()).setColor(iconR, iconG, iconB, fade);
@@ -557,7 +575,6 @@ public class HighlightWaypointUtil {
         vertexBuffer.vertex(matrix4f, -xWidth, yWidth, 0.0f).uv(icon.getU0(), icon.getV1()).color(iconR, iconG, iconB, fade).endVertex();
         vertexBuffer.vertex(matrix4f, xWidth, yWidth, 0.0f).uv(icon.getU1(), icon.getV1()).color(iconR, iconG, iconB, fade).endVertex();
         vertexBuffer.vertex(matrix4f, xWidth, -yWidth, 0.0f).uv(icon.getU1(), icon.getV0()).color(iconR, iconG, iconB, fade).endVertex();
-        tesselator.end();
         //#endif
 
         //#if MC < 11904
@@ -578,10 +595,11 @@ public class HighlightWaypointUtil {
             // 渲染内框
             RenderSystem.polygonOffset(1.0f, 11.0f);
             //#if MC > 12006
-            //$$ vertexBuffer = tesselator.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            //$$ HighlightWaypointUtil.end(vertexBuffer);
+            //$$ vertexBuffer = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
             //#else
-            vertexBuffer = tesselator.getBuilder();
-            vertexBuffer.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            tesselator.end();
+            HighlightWaypointUtil.beginLines(vertexBuffer);
             //#endif
             //#if MC > 12006
             //$$ vertexBuffer.addVertex(matrix4f, -halfStringWidth - 2, -2 + elevateBy, 0.0f).setColor(textFieldR, textFieldG, textFieldB, 0.6f * fade);
@@ -598,27 +616,29 @@ public class HighlightWaypointUtil {
             vertexBuffer.vertex(matrix4f, -halfStringWidth - 2, 9 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
             vertexBuffer.vertex(matrix4f, halfStringWidth + 2, 9 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
             vertexBuffer.vertex(matrix4f, halfStringWidth + 2, -2 + elevateBy, 0.0f).color(textFieldR, textFieldG, textFieldB, 0.6f * fade).endVertex();
-            tesselator.end();
             //#endif
 
             // 渲染外框
             RenderSystem.polygonOffset(1.0f, 9.0f);
             //#if MC > 12006
-            //$$ vertexBuffer = tesselator.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            //$$ HighlightWaypointUtil.end(vertexBuffer);
+            //$$ vertexBuffer = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
             //#else
-            vertexBuffer = tesselator.getBuilder();
-            vertexBuffer.begin(VertexFormatCompat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            tesselator.end();
+            HighlightWaypointUtil.beginLines(vertexBuffer);
             //#endif
             //#if MC > 12006
             //$$ vertexBuffer.addVertex(matrix4f, -halfStringWidth - 1, -1 + elevateBy, 0.0f).setColor(0.0f, 0.0f, 0.0f, 0.15f * fade);
             //$$ vertexBuffer.addVertex(matrix4f, -halfStringWidth - 1, 8 + elevateBy, 0.0f).setColor(0.0f, 0.0f, 0.0f, 0.15f * fade);
             //$$ vertexBuffer.addVertex(matrix4f, halfStringWidth + 1, 8 + elevateBy, 0.0f).setColor(0.0f, 0.0f, 0.0f, 0.15f * fade);
             //$$ vertexBuffer.addVertex(matrix4f, halfStringWidth + 1, -1 + elevateBy, 0.0f).setColor(0.0f, 0.0f, 0.0f, 0.15f * fade);
+            //$$ HighlightWaypointUtil.end(vertexBuffer);
             //#elseif MC < 11502
             //$$ vertexBuffer.vertex(-halfStringWidth - 1, -1 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
             //$$ vertexBuffer.vertex(-halfStringWidth - 1, 8 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
             //$$ vertexBuffer.vertex(halfStringWidth + 1, 8 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
             //$$ vertexBuffer.vertex(halfStringWidth + 1, -1 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
+            //$$ tesselator.end();
             //#else
             vertexBuffer.vertex(matrix4f, -halfStringWidth - 1, -1 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
             vertexBuffer.vertex(matrix4f, -halfStringWidth - 1, 8 + elevateBy, 0.0f).color(0.0f, 0.0f, 0.0f, 0.15f * fade).endVertex();
@@ -635,21 +655,27 @@ public class HighlightWaypointUtil {
             //#endif
             int textColor = (int) (255.0f * fade) << 24 | 0xCCCCCC;
             RenderSystem.disableDepthTest();
+
+            //#if MC> 11404
+            MultiBufferSource.BufferSource immediate = RenderUtil.getBufferSource();
+            //#endif
+
             fontCompat.drawInBatch(
                 ComponentCompat.literal(name).get().toString(),
                 (float) (-textRenderer.width(name) / 2),
-                (float) elevateBy, textColor,
-                //#if MC > 12006
-                //$$ false, matrix4f, MultiBufferSource.immediate(((AccessorBufferBuilder) (Object) vertexBuffer).getBuffer()),
-                //#else
+                (float) elevateBy,
+                textColor,
                 false,
-                    //#if MC > 11404
-                    matrix4f, MultiBufferSource.immediate(vertexBuffer),
-                    //#endif
+                //#if MC > 11404
+                matrix4f,
+                immediate,
                 //#endif
                 FontCompat.DisplayMode.SEE_THROUGH,
                 0,
                 0xF000F0);
+            //#if MC > 11404
+            immediate.endBatch();
+            //#endif
         }
         //#if MC > 11605
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -737,6 +763,15 @@ public class HighlightWaypointUtil {
     //$$     } catch (Exception ignore) {
     //$$     }
     //$$ }
+    //#else
+    private static void beginLines(BufferBuilder builder) {
+        //#if MC > 11700
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        builder.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+        //#else
+        //$$ builder.begin(GL11.GL_LINES, DefaultVertexFormat.POSITION_COLOR);
+        //#endif
+    }
     //#endif
 
     @Getter

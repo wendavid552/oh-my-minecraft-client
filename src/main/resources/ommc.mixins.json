@@ -11,6 +11,7 @@
     "accessor.AccessorBlockRenderContext",
     "accessor.AccessorBlockStateBase",
     "accessor.AccessorHelpCommand",
+    "accessor.AccessorSlot",
     "accessor.AccessorTextComponent",
     "accessor.AccessorTranslatableComponent",
     "advancedIntegratedServer.MixinIntegratedServer",
@@ -63,9 +64,5 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "mixins": [
-    "accessor.AccessorBufferBuilder",
-    "accessor.AccessorSlot"
-  ]
+  }
 }

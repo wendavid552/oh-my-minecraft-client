@@ -71,7 +71,6 @@ public class Configs {
     }
 
     // GENERIC
-    @Statistic(hotkey = false)
     @Config(category = ConfigCategory.GENERIC)
     public static MagicConfigHotkey clearWaypoint = cf.newConfigHotkey("clearWaypoint", "C");
 
