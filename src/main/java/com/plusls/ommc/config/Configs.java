@@ -26,6 +26,7 @@ import top.hendrixshen.magiclib.api.malilib.annotation.Config;
 import top.hendrixshen.magiclib.impl.malilib.config.MagicConfigFactory;
 import top.hendrixshen.magiclib.impl.malilib.config.MagicConfigHandler;
 import top.hendrixshen.magiclib.impl.malilib.config.option.MagicConfigBoolean;
+import top.hendrixshen.magiclib.impl.malilib.config.option.MagicConfigBooleanHotkeyed;
 import top.hendrixshen.magiclib.impl.malilib.config.option.MagicConfigHotkey;
 import top.hendrixshen.magiclib.impl.malilib.config.option.MagicConfigInteger;
 import top.hendrixshen.magiclib.impl.malilib.config.option.MagicConfigOptionList;
@@ -82,8 +83,8 @@ public class Configs {
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.GENERIC)
-    public static MagicConfigBoolean forceParseWaypointFromChat =
-        cf.newConfigBoolean("forceParseWaypointFromChat", false);
+    public static MagicConfigBooleanHotkeyed forceParseWaypointFromChat =
+        cf.newConfigBooleanHotkeyed("forceParseWaypointFromChat", false);
 
     @Config(category = ConfigCategory.GENERIC)
     public static MagicConfigInteger highlightBeamTime =
@@ -95,7 +96,8 @@ public class Configs {
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.GENERIC)
-    public static MagicConfigBoolean parseWaypointFromChat = cf.newConfigBoolean("parseWaypointFromChat", true);
+    public static MagicConfigBooleanHotkeyed parseWaypointFromChat =
+        cf.newConfigBooleanHotkeyed("parseWaypointFromChat", true);
 
     // hotkey = "O,P"
     @Statistic(hotkey = false)
@@ -104,8 +106,8 @@ public class Configs {
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.GENERIC)
-    public static MagicConfigBoolean sortInventorySupportEmptyShulkerBoxStack =
-        cf.newConfigBoolean("sortInventorySupportEmptyShulkerBoxStack", true);
+    public static MagicConfigBooleanHotkeyed sortInventorySupportEmptyShulkerBoxStack =
+        cf.newConfigBooleanHotkeyed("sortInventorySupportEmptyShulkerBoxStack", true);
 
     // hotkey = "R"
     @Statistic(hotkey = false)
@@ -119,73 +121,86 @@ public class Configs {
     // FEATURE_TOGGLE
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean autoSwitchElytra = cf.newConfigBoolean("autoSwitchElytra", false);
+    public static MagicConfigBooleanHotkeyed autoSwitchElytra = cf.newConfigBooleanHotkeyed("autoSwitchElytra", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean betterSneaking = cf.newConfigBoolean("betterSneaking", false);
+    public static MagicConfigBooleanHotkeyed betterSneaking = cf.newConfigBooleanHotkeyed("betterSneaking", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
     @Dependencies(require = @Dependency(value = "minecraft", versionPredicates = ">1.15.2"))
-    public static MagicConfigBoolean disableBlocklistCheck = cf.newConfigBoolean("disableBlocklistCheck", false);
+    public static MagicConfigBooleanHotkeyed disableBlocklistCheck =
+        cf.newConfigBooleanHotkeyed("disableBlocklistCheck", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean disableBreakBlock = cf.newConfigBoolean("disableBreakBlock", false);
+    public static MagicConfigBooleanHotkeyed disableBreakBlock =
+        cf.newConfigBooleanHotkeyed("disableBreakBlock", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean disableBreakScaffolding = cf.newConfigBoolean("disableBreakScaffolding", false);
+    public static MagicConfigBooleanHotkeyed disableBreakScaffolding =
+        cf.newConfigBooleanHotkeyed("disableBreakScaffolding", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean disableMoveDownInScaffolding =
-        cf.newConfigBoolean("disableMoveDownInScaffolding", false);
+    public static MagicConfigBooleanHotkeyed disableMoveDownInScaffolding =
+        cf.newConfigBooleanHotkeyed("disableMoveDownInScaffolding", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean disablePistonPushEntity = cf.newConfigBoolean("disablePistonPushEntity", false);
+    public static MagicConfigBooleanHotkeyed disablePistonPushEntity =
+        cf.newConfigBooleanHotkeyed("disablePistonPushEntity", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean flatDigger = cf.newConfigBoolean("flatDigger", false);
+    public static MagicConfigBooleanHotkeyed flatDigger = cf.newConfigBooleanHotkeyed("flatDigger", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean forceBreakingCooldown = cf.newConfigBoolean("forceBreakingCooldown", false);
+    public static MagicConfigBooleanHotkeyed forceBreakingCooldown =
+        cf.newConfigBooleanHotkeyed("forceBreakingCooldown", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean highlightLavaSource = cf.newConfigBoolean("highlightLavaSource", false);
+    public static MagicConfigBooleanHotkeyed highlightLavaSource =
+        cf.newConfigBooleanHotkeyed("highlightLavaSource", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean highlightPersistentMob = cf.newConfigBoolean("highlightPersistentMob", false);
+    public static MagicConfigBooleanHotkeyed highlightPersistentMob =
+        cf.newConfigBooleanHotkeyed("highlightPersistentMob", false);
 
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean highlightPersistentMobClientMode = cf.newConfigBoolean("highlightPersistentMobClientMode", false);
+    public static MagicConfigBoolean highlightPersistentMobClientMode =
+        cf.newConfigBoolean("highlightPersistentMobClientMode", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean preventWastageOfWater = cf.newConfigBoolean("preventWastageOfWater", false);
+    public static MagicConfigBooleanHotkeyed preventWastageOfWater =
+        cf.newConfigBooleanHotkeyed("preventWastageOfWater", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean preventIntentionalGameDesign = cf.newConfigBoolean("preventIntentionalGameDesign", false);
+    public static MagicConfigBooleanHotkeyed preventIntentionalGameDesign =
+        cf.newConfigBooleanHotkeyed("preventIntentionalGameDesign", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean realSneaking = cf.newConfigBoolean("realSneaking", false);
+    public static MagicConfigBooleanHotkeyed realSneaking =
+        cf.newConfigBooleanHotkeyed("realSneaking", false);
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean removeBreakingCooldown = cf.newConfigBoolean("removeBreakingCooldown", false);
+    public static MagicConfigBooleanHotkeyed removeBreakingCooldown =
+        cf.newConfigBooleanHotkeyed("removeBreakingCooldown", false);
 
 
     @Statistic(hotkey = false)
     @Config(category = ConfigCategory.FEATURE_TOGGLE)
-    public static MagicConfigBoolean worldEaterMineHelper = cf.newConfigBoolean("worldEaterMineHelper", false);
+    public static MagicConfigBooleanHotkeyed worldEaterMineHelper =
+        cf.newConfigBooleanHotkeyed("worldEaterMineHelper", false);
 
 
     // LISTS
