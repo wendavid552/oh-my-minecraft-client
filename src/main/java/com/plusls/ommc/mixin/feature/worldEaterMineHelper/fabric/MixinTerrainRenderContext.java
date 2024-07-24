@@ -1,6 +1,5 @@
 package com.plusls.ommc.mixin.feature.worldEaterMineHelper.fabric;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.plusls.ommc.feature.worldEaterMineHelper.WorldEaterMineHelperUtil;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.TerrainRenderContext;
 import net.minecraft.client.resources.model.BakedModel;
@@ -29,6 +28,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderInfo;
 //#else
 //$$ import net.fabricmc.fabric.impl.client.indigo.renderer.render.TerrainBlockRenderInfo;
+//#endif
+
+//#if MC > 11404
+import com.mojang.blaze3d.vertex.PoseStack;
 //#endif
 
 @Mixin(value = TerrainRenderContext.class, remap = false)

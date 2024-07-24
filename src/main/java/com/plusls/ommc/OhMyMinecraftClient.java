@@ -2,17 +2,13 @@ package com.plusls.ommc;
 
 import com.plusls.ommc.config.Configs;
 import com.plusls.ommc.feature.highlightLavaSource.LavaSourceResourceLoader;
-import com.plusls.ommc.feature.highlithtWaypoint.HighlightWaypointResourceLoader;
-import com.plusls.ommc.feature.highlithtWaypoint.HighlightWaypointUtil;
 import com.plusls.ommc.feature.preventWastageOfWater.PreventWastageOfWaterHandler;
 import com.plusls.ommc.feature.realSneaking.RealSneakingEventHandler;
+import com.plusls.ommc.impl.generic.highlightWaypoint.HighlightWaypointHandler;
 import fi.dy.masa.malilib.config.ConfigManager;
 import net.fabricmc.api.ClientModInitializer;
 import top.hendrixshen.magiclib.api.dependency.annotation.Dependencies;
 import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
-import top.hendrixshen.magiclib.api.malilib.config.MagicConfigManager;
-import top.hendrixshen.magiclib.impl.malilib.config.GlobalConfigManager;
-import top.hendrixshen.magiclib.impl.malilib.config.MagicConfigHandler;
 
 public class OhMyMinecraftClient implements ClientModInitializer {
     @Dependencies(require = {
@@ -34,7 +30,7 @@ public class OhMyMinecraftClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         LavaSourceResourceLoader.init();
-        HighlightWaypointResourceLoader.init();
+        HighlightWaypointHandler.init();
         OhMyMinecraftClientReference.getConfigManager()
             .parseConfigClass(Configs.class);
         OhMyMinecraftClientReference.configHandler.setPostDeserializeCallback(Configs::postDeserialize);
@@ -44,7 +40,6 @@ public class OhMyMinecraftClient implements ClientModInitializer {
         );
         Configs.init();
         RealSneakingEventHandler.init();
-        HighlightWaypointUtil.init();
         PreventWastageOfWaterHandler.init();
     }
 }

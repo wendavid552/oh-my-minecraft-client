@@ -1,6 +1,5 @@
 package com.plusls.ommc.mixin.feature.worldEaterMineHelper.optifine;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.plusls.ommc.feature.worldEaterMineHelper.BlockModelRendererContext;
 import com.plusls.ommc.feature.worldEaterMineHelper.WorldEaterMineHelperUtil;
 import com.plusls.ommc.mixin.accessor.AccessorBlockStateBase;
@@ -26,6 +25,7 @@ import net.minecraft.util.RandomSource;
 //#endif
 
 //#if MC > 11404
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 //#endif
 

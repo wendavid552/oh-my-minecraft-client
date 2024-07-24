@@ -2,9 +2,9 @@ package com.plusls.ommc.config;
 
 import com.google.common.collect.ImmutableList;
 import com.plusls.ommc.OhMyMinecraftClientReference;
-import com.plusls.ommc.feature.highlithtWaypoint.HighlightWaypointUtil;
 import com.plusls.ommc.feature.sortInventory.SortInventoryUtil;
 import com.plusls.ommc.gui.GuiConfigs;
+import com.plusls.ommc.impl.generic.highlightWaypoint.HighlightWaypointHandler;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.hotkeys.KeybindSettings;
 import fi.dy.masa.malilib.util.restrictions.UsageRestriction;
@@ -285,7 +285,7 @@ public class Configs {
         });
 
         clearWaypoint.getKeybind().setCallback((keyAction, iKeybind) -> {
-            HighlightWaypointUtil.clearHighlightPos();
+            HighlightWaypointHandler.getInstance().clearHighlightPos();
             return false;
         });
 

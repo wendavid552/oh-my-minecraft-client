@@ -41,8 +41,6 @@
     "feature.highlightLavaSource.sodium.MixinFluidRenderer",
     "feature.highlightPersistentMob.MixinEntity",
     "feature.highlightWaypoint.MixinChatHud",
-    "feature.highlightWaypoint.MixinGameRenderer",
-    "feature.highlightWaypoint.MixinLevelRenderer",
     "feature.highlightWaypoint.MixinMutableComponent",
     "feature.preventIntentionalGameDesign.MixinClientPlayerInteractionManager",
     "feature.removeBreakCooldown.MixinClientPlayerInteractionManager",
