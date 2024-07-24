@@ -50,7 +50,7 @@ repositories {
     }
 
     maven {
-        name("nyanRepositoryReleases")
+        name("Nyan Maven")
         url("https://maven.hendrixshen.top/releases")
     }
 
@@ -284,18 +284,45 @@ yamlang {
 
 publishing {
     publications {
-        create("mavenJava", MavenPublication) {
-            artifactId("${project.property("mod.id")}-${project.property("dependencies.minecraft_version").replace(".", "_")}")
-            from(components.java)
+        register("release", MavenPublication) { MavenPublication publication ->
+            artifactId("${this.project.parent.property("mod.artifact_name")}-${project.name}")
+            from(this.project.components.java)
+            version("${this.project.getMavenArtifactVersion(this.project.parent)}")
+        }
+
+        register("snapshot", MavenPublication) { MavenPublication publication ->
+            artifactId("${this.project.parent.property("mod.artifact_name")}-${project.name}")
+            from(this.project.components.java)
+            version("${this.project.parent.property("mod.version")}-SNAPSHOT")
         }
     }
 
     repositories {
-        mavenLocal()
+        mavenLocal {
+            name("mavenLocal")
+        }
 
         maven {
-            url("$rootDir/publish")
+            name("projectLocalSnapshot")
+            url("${rootDir}/publish/snapshot")
         }
+
+        maven {
+            name("projectLocalRelease")
+            url("${rootDir}/publish/release")
+        }
+    }
+}
+
+tasks.withType(PublishToMavenRepository).configureEach {
+    Provider<Boolean> predicate = provider {
+        repository == publishing.repositories.mavenLocal ||
+                (repository == publishing.repositories.projectLocalSnapshot && publication == publishing.publications.snapshot) ||
+                (repository == publishing.repositories.projectLocalRelease && publication == publishing.publications.release)
+    }
+
+    onlyIf {
+        predicate.get()
     }
 }
 
