@@ -25,7 +25,7 @@
       "com.plusls.ommc.OhMyMinecraftClient"
     ],
     "modmenu": [
-      "com.plusls.ommc.compat.modmenu.ModMenuApiImpl"
+      "com.plusls.ommc.impl.compat.modmenu.ModMenuApiImpl"
     ]
   },
   "mixins": [

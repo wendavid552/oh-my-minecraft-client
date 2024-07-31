@@ -1,4 +1,4 @@
-package com.plusls.ommc.compat.modmenu;
+package com.plusls.ommc.impl.compat.modmenu;
 
 import com.plusls.ommc.OhMyMinecraftClientReference;
 import com.plusls.ommc.gui.GuiConfigs;
