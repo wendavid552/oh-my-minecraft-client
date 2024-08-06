@@ -1,117 +1,136 @@
 package com.plusls.ommc.mixin.feature.betterSneaking;
 
-import com.plusls.ommc.config.Configs;
-import com.plusls.ommc.util.CompatGetUtil;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.plusls.ommc.game.Configs;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.LavaFluid;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import top.hendrixshen.magiclib.api.compat.minecraft.world.entity.LivingEntityCompat;
+import top.hendrixshen.magiclib.api.compat.minecraft.world.entity.EntityCompat;
+import top.hendrixshen.magiclib.util.collect.Provider;
 
-//#if MC > 11404
-@Mixin(Player.class)
-//#else
-//$$ @Mixin(Entity.class)
+//#if MC > 12004
+//$$ import org.spongepowered.asm.mixin.Shadow;
 //#endif
+
+@Mixin(
+        //#if MC > 11404
+        Player.class
+        //#else
+        //$$ Entity.class
+        //#endif
+)
+
 public abstract class MixinPlayerEntity {
     @Unique
-    final private static float MAX_STEP_HEIGHT = 1.25f;
+    private static final float ommc$MAX_STEP_HEIGHT = 1.2F;
+
     @Unique
-    final private static float DEFAULT_STEP_HEIGHT = 114514;
-    @Unique
-    private float prevStepHeight = DEFAULT_STEP_HEIGHT;
+    private float ommc$original_step_height = 0.0F;
 
-    @Inject(method = "maybeBackOffFromEdge", at = @At(value = "FIELD", target = "Lnet/minecraft/world/phys/Vec3;x:D", opcode = Opcodes.GETFIELD, ordinal = 0))
-    private void setStepHeight(Vec3 movement, MoverType type, CallbackInfoReturnable<Vec3> cir) {
-        LivingEntityCompat entityCompat = CompatGetUtil.getLivingEntityCompat(this);
-        if (!Configs.betterSneaking.getBooleanValue() || !entityCompat.getLevelCompat().get().get().isClientSide()) {
-            return;
-        }
-        prevStepHeight = entityCompat.getMaxUpStep();
-        entityCompat.setMaxUpStep(MAX_STEP_HEIGHT);
-    }
+    //#if MC > 12004
+    //$$ @Shadow
+    //$$ protected abstract boolean canFallAtLeast(double par1, double par2, float par3);
+    //#endif
 
-    @Inject(method = "maybeBackOffFromEdge", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;<init>(DDD)V", ordinal = 0))
-    private void restoreStepHeight(Vec3 movement, MoverType type, CallbackInfoReturnable<Vec3> cir) {
-        LivingEntityCompat entityCompat = CompatGetUtil.getLivingEntityCompat(this);
-        if (!Configs.betterSneaking.getBooleanValue()
-            || !entityCompat.getLevelCompat().get().get().isClientSide()
-            || Math.abs(prevStepHeight - DEFAULT_STEP_HEIGHT) <= 0.001
-        ) {
-            return;
-        }
-        entityCompat.setMaxUpStep(prevStepHeight);
-    }
-
-    @Redirect(
-        method = "maybeBackOffFromEdge",
-        at = @At(
-            value = "INVOKE",
-            //#if MC < 12005
-            target = "Lnet/minecraft/world/level/Level;noCollision(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Z",
-            //#else
-            //$$ target = "Lnet/minecraft/world/entity/player/Player;canFallAtLeast(DDF)Z",
-            //#endif
-            ordinal = -1
-        )
+    @WrapOperation(
+            method = "maybeBackOffFromEdge",
+            at = @At(
+                    //#if MC > 11903
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/player/Player;maxUpStep()F"
+                    //#else
+                    //$$ value = "FIELD",
+                    //#if MC > 11404
+                    //$$ target = "Lnet/minecraft/world/entity/player/Player;maxUpStep:F"
+                    //#else
+                    //$$ target = "Lnet/minecraft/world/entity/Entity;maxUpStep:F"
+                    //#endif
+                    //#endif
+            )
     )
-    private boolean myIsSpaceEmpty(
-        //#if MC < 12005
-        Level world, Entity entity, AABB box
-        //#else
-        //$$ Player entity, double d, double e, float f
-        //#endif
+    private float fakeStepHeight(
+            //#if MC > 11404
+            Player instance,
+            //#else
+            //$$ Entity instance,
+            //#endif
+            Operation<Float> original
     ) {
+        EntityCompat entityCompat = EntityCompat.of(instance);
+        this.ommc$original_step_height = original.call(instance);
+
+        if (!Configs.betterSneaking.getBooleanValue() || !entityCompat.getLevelCompat().map(Provider::get).get().isClientSide()) {
+            return this.ommc$original_step_height;
+        }
+
+        return MixinPlayerEntity.ommc$MAX_STEP_HEIGHT;
+    }
+
+    @WrapOperation(
+            method = "maybeBackOffFromEdge",
+            at = @At(
+                    value = "INVOKE",
+                    //#if MC > 12004
+                    //$$ target = "Lnet/minecraft/world/entity/player/Player;canFallAtLeast(DDF)Z"
+                    //#else
+                    target = "Lnet/minecraft/world/level/Level;noCollision(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Z"
+                    //#endif
+            )
+    )
+    private boolean checkFallAtLava(
+            //#if MC > 12004
+            //$$ Player entity,
+            //$$ double d,
+            //$$ double e,
+            //$$ float f,
+            //#else
+            Level level,
+            Entity entity,
+            AABB aabb,
+            //#endif
+            Operation<Boolean> original
+    ) {
+        EntityCompat entityCompat = EntityCompat.of(entity);
+
         //#if MC > 12004
-        //$$ Level world = entity.level();
-        //$$ AABB box = entity.getBoundingBox().move(d, -entity.maxUpStep(), 0.0);
+        //$$ Level level = entity.level();
         //#endif
-        //#if MC > 11903
-        boolean retOld = world.noCollision(entity, box.move(0, entity.maxUpStep() - prevStepHeight, 0));
-        //#else
-        //$$ boolean retOld = world.noCollision(entity, box.move(0, entity.maxUpStep - prevStepHeight, 0));
-        //#endif
-        boolean retNew = world.noCollision(entity, box);
-        if (Configs.betterSneaking.getBooleanValue() && world.isClientSide() && (retOld && !retNew) &&
-                //#if MC > 11502
-                world.getFluidState(entity.blockPosition().below()).getType() instanceof LavaFluid) {
+
+        // Patched value if betterSneak is enabled, otherwise vanilla value.
+        boolean result = original.call(
+                //#if MC > 12004
+                //$$ entity,
+                //$$ d,
+                //$$ e,
+                //$$ f
                 //#else
-                //$$ world.getFluidState(entity.getCommandSenderBlockPosition().below()).getType() instanceof LavaFluid) {
+                level,
+                entity,
+                aabb
                 //#endif
+        );
+
+        if (!Configs.betterSneaking.getBooleanValue() || !level.isClientSide()) {
+            return result;
+        }
+
+        // Always vanilla value and bypass WrapOperation chain invoke.
+        //#if MC > 12004
+        //$$ boolean originalResult = this.canFallAtLeast(d, e, this.ommc$original_step_height);
+        //#else
+        boolean originalResult = level.noCollision(entity, aabb.move(0, MixinPlayerEntity.ommc$MAX_STEP_HEIGHT - this.ommc$original_step_height, 0));
+        //#endif
+
+        if ((originalResult && !result) && level.getFluidState(entityCompat.getBlockPosition().below()).getType() instanceof LavaFluid) {
             return true;
         }
-        return retNew;
-    }
 
-    //#if MC > 11502
-    @Inject(method = "isAboveGround", at = @At(value = "HEAD"))
-    private void setStepHeight(CallbackInfoReturnable<Boolean> cir) {
-        LivingEntityCompat entityCompat = CompatGetUtil.getLivingEntityCompat(this);
-        if (!Configs.betterSneaking.getBooleanValue() || !entityCompat.getLevelCompat().get().get().isClientSide()) {
-            return;
-        }
-        prevStepHeight = entityCompat.getMaxUpStep();
-        entityCompat.setMaxUpStep(MAX_STEP_HEIGHT);
+        return result;
     }
-
-    @Inject(method = "isAboveGround", at = @At(value = "RETURN"))
-    private void restoreStepHeight(CallbackInfoReturnable<Boolean> cir) {
-        LivingEntityCompat entityCompat = CompatGetUtil.getLivingEntityCompat(this);
-        if (!Configs.betterSneaking.getBooleanValue() || !entityCompat.getLevelCompat().get().get().isClientSide() || Math.abs(prevStepHeight - DEFAULT_STEP_HEIGHT) <= 0.001) {
-            return;
-        }
-        entityCompat.setMaxUpStep(prevStepHeight);
-        prevStepHeight = DEFAULT_STEP_HEIGHT;
-    }
-    //#endif
 }

@@ -38,10 +38,6 @@
     "minecraft": "${minecraft_dependency}"
   },
   "custom": {
-    "modmenu:clientsideOnly": true,
-    "modmenu:parent": "${mod_id}",
-    "modmenu": {
-      "parent": "${mod_id}"
-    }
+    "modmenu:clientsideOnly": true
   }
 }

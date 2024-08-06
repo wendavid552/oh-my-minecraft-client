@@ -1,6 +1,6 @@
 package com.plusls.ommc.mixin.feature.worldEaterMineHelper.sodium;
 
-import com.plusls.ommc.feature.worldEaterMineHelper.WorldEaterMineHelperUtil;
+import com.plusls.ommc.impl.feature.worldEaterMineHelper.WorldEaterMineHelper;
 import com.plusls.ommc.mixin.accessor.AccessorBlockRenderContext;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
@@ -38,8 +38,8 @@ public abstract class MixinBlockRenderer_0_4_11 {
             )
     )
     private void postRenderModel(@NotNull BlockRenderContext ctx, ChunkBuildBuffers buffers, ChunkRenderBounds.Builder bounds, CallbackInfo ci) {
-        if (WorldEaterMineHelperUtil.shouldUseCustomModel(ctx.state(), ctx.pos()) && !this.ommc$renderTag.get()) {
-            BakedModel customModel = WorldEaterMineHelperUtil.customModels.get(ctx.state().getBlock());
+        if (WorldEaterMineHelper.shouldUseCustomModel(ctx.state(), ctx.pos()) && !this.ommc$renderTag.get()) {
+            BakedModel customModel = WorldEaterMineHelper.customModels.get(ctx.state().getBlock());
 
             if (customModel != null) {
                 this.ommc$renderTag.set(true);

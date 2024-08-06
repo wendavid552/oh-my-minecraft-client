@@ -1,6 +1,6 @@
 package com.plusls.ommc.mixin.feature.highlightWaypoint;
 
-import com.plusls.ommc.config.Configs;
+import com.plusls.ommc.game.Configs;
 import com.plusls.ommc.impl.generic.highlightWaypoint.HighlightWaypointHandler;
 import top.hendrixshen.magiclib.api.compat.minecraft.network.chat.ComponentCompat;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -26,9 +26,7 @@ public class MixinChatHud {
             //#else
             //$$ method = "addMessage(Lnet/minecraft/network/chat/Component;I)V",
             //#endif
-            at = @At(
-                    value = "HEAD"
-            )
+            at = @At(value = "HEAD")
     )
     public void modifyMessage(
             //#if MC >= 12005

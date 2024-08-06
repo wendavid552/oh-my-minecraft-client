@@ -238,6 +238,7 @@ replaceToken {
     replace("@MOD_NAME@"      , project.parent.property("mod.name"))
     replace("@MOD_VERSION@"   , project.getVersionWithCommitHash(this.project.parent) as String)
     replaceIn("com/plusls/ommc/OhMyMinecraftClientReference")
+    replaceIn("com/plusls/ommc/SharedConstants")
 }
 
 processResources {

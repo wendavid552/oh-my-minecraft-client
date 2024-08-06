@@ -4,10 +4,9 @@ import com.google.common.collect.Lists;
 import com.mojang.brigadier.context.CommandContext;
 import com.plusls.ommc.OhMyMinecraftClientReference;
 import com.plusls.ommc.api.command.ClientBlockPosArgument;
-import com.plusls.ommc.config.Configs;
+import com.plusls.ommc.game.Configs;
 import com.plusls.ommc.mixin.accessor.AccessorTextComponent;
 import com.plusls.ommc.mixin.accessor.AccessorTranslatableComponent;
-import com.plusls.ommc.util.Tuple;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +19,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.*;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.ApiStatus;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.hendrixshen.magiclib.api.compat.minecraft.network.chat.ComponentCompat;
@@ -49,7 +48,7 @@ public class HighlightWaypointHandler {
     private static final String highlightWaypoint = "highlightWaypoint";
     private static final Pattern pattern = Pattern.compile("(?:(?:x\\s*:\\s*)?(?<x>(?:[+-]?\\d+)(?:\\.\\d+)?)(?:[df])?)(?:(?:(?:\\s*[,，]\\s*(?:y\\s*:\\s*)?)|(?:\\s+))(?<y>(?:[+-]?\\d+)(?:\\.\\d+)?)(?:[df])?)?(?:(?:(?:\\s*[,，]\\s*(?:z\\s*:\\s*)?)|(?:\\s+))(?<z>(?:[+-]?\\d+)(?:\\.\\d+)?)(?:[df])?)", Pattern.CASE_INSENSITIVE);
 
-    private final Tuple<BlockPos, BlockPos> highlightPos = new Tuple<>(null, null);
+    private final MutablePair<BlockPos, BlockPos> highlightPos = MutablePair.of(null, null);
     private final HighlightWaypointRenderer renderer = HighlightWaypointRenderer.getInstance();
 
     public static void init() {
@@ -167,9 +166,7 @@ public class HighlightWaypointHandler {
         this.updateMessage(chat);
     }
 
-    // TODO: Make private
-    @ApiStatus.Internal
-    public boolean updateMessage(@NotNull ComponentCompat chat) {
+    private boolean updateMessage(@NotNull ComponentCompat chat) {
         //#if MC > 11802
         ComponentContents componentContents = chat.get().getContents();
 
@@ -269,23 +266,23 @@ public class HighlightWaypointHandler {
     }
 
     public BlockPos getHighlightPos(Player player) {
-        return this.inNether(player) ? this.highlightPos.getB() : this.highlightPos.getA();
+        return this.inNether(player) ? this.highlightPos.getRight() : this.highlightPos.getLeft();
     }
 
     private boolean setHighlightBlockPos(@NotNull BlockPos overworldPos, @NotNull BlockPos netherWorldPos) {
-        if (overworldPos.equals(this.highlightPos.getA()) &&
-                netherWorldPos.equals(this.highlightPos.getB())) {
+        if (overworldPos.equals(this.highlightPos.getLeft()) &&
+                netherWorldPos.equals(this.highlightPos.getRight())) {
             return false;
         }
 
-        this.highlightPos.setA(overworldPos);
-        this.highlightPos.setB(netherWorldPos);
+        this.highlightPos.setLeft(overworldPos);
+        this.highlightPos.setRight(netherWorldPos);
         return true;
     }
 
     public void clearHighlightPos() {
-        this.highlightPos.setA(null);
-        this.highlightPos.setB(null);
+        this.highlightPos.setLeft(null);
+        this.highlightPos.setRight(null);
         this.renderer.lastBeamTime = 0;
     }
 

@@ -1,6 +1,6 @@
 package com.plusls.ommc.mixin.feature.worldEaterMineHelper.fabric;
 
-import com.plusls.ommc.feature.worldEaterMineHelper.WorldEaterMineHelperUtil;
+import com.plusls.ommc.impl.feature.worldEaterMineHelper.WorldEaterMineHelper;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderContext;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
@@ -87,6 +87,6 @@ public abstract class MixinBlockRenderContext extends AbstractBlockRenderContext
             //#else
             //$$ CallbackInfoReturnable<Boolean> cir) {
             //#endif
-        WorldEaterMineHelperUtil.emitCustomBlockQuads(blockView, state, pos, this.blockInfo.randomSupplier, this);
+        WorldEaterMineHelper.emitCustomBlockQuads(blockView, state, pos, this.blockInfo.randomSupplier, this);
     }
 }

@@ -1,6 +1,6 @@
 package com.plusls.ommc.mixin.feature.worldEaterMineHelper.fabric;
 
-import com.plusls.ommc.feature.worldEaterMineHelper.WorldEaterMineHelperUtil;
+import com.plusls.ommc.impl.feature.worldEaterMineHelper.WorldEaterMineHelper;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.TerrainRenderContext;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
@@ -16,6 +16,12 @@ import net.fabricmc.fabric.impl.client.indigo.renderer.render.AbstractBlockRende
 //$$ import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 //$$ import org.spongepowered.asm.mixin.Final;
 //$$ import org.spongepowered.asm.mixin.Shadow;
+//$$
+//#if MC > 11701
+//$$ import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderInfo;
+//#else
+//$$ import net.fabricmc.fabric.impl.client.indigo.renderer.render.TerrainBlockRenderInfo;
+//#endif
 //#endif
 
 //#if MC > 11802
@@ -25,7 +31,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //#endif
 
 //#if MC > 11701
-import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderInfo;
 //#else
 //$$ import net.fabricmc.fabric.impl.client.indigo.renderer.render.TerrainBlockRenderInfo;
 //#endif
@@ -34,19 +39,24 @@ import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 //#endif
 
+@SuppressWarnings("UnstableApiUsage")
 @Mixin(value = TerrainRenderContext.class, remap = false)
-//#if MC > 11903
-public abstract class MixinTerrainRenderContext extends AbstractBlockRenderContext {
-//#else
-//$$ public abstract class MixinTerrainRenderContext implements RenderContext {
-//$$     @Final
-//$$     @Shadow
-//#if MC > 11701
-//$$     private BlockRenderInfo blockInfo;
-//#else
-//$$     private TerrainBlockRenderInfo blockInfo;
-//#endif
-//#endif
+public abstract class MixinTerrainRenderContext
+        //#if MC > 11903
+        extends AbstractBlockRenderContext
+        //#else
+        //$$ implements RenderContext
+        //#endif
+{
+    //#if MC < 11904
+    //$$ @Shadow
+    //$$ @Final
+    //#if MC > 11701
+    //$$ private BlockRenderInfo blockInfo;
+    //#else
+    //$$ private TerrainBlockRenderInfo blockInfo;
+    //#endif
+    //#endif
 
     @Dynamic
     @Inject(
@@ -70,6 +80,6 @@ public abstract class MixinTerrainRenderContext extends AbstractBlockRenderConte
                                       //#else
                                       //$$ CallbackInfoReturnable<Boolean> cir) {
                                       //#endif
-        WorldEaterMineHelperUtil.emitCustomBlockQuads(blockInfo.blockView, blockInfo.blockState, blockInfo.blockPos, blockInfo.randomSupplier, this);
+        WorldEaterMineHelper.emitCustomBlockQuads(blockInfo.blockView, blockInfo.blockState, blockInfo.blockPos, blockInfo.randomSupplier, this);
     }
 }

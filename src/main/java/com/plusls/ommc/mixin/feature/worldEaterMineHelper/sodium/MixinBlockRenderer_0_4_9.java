@@ -1,6 +1,6 @@
 package com.plusls.ommc.mixin.feature.worldEaterMineHelper.sodium;
 
-import com.plusls.ommc.feature.worldEaterMineHelper.WorldEaterMineHelperUtil;
+import com.plusls.ommc.impl.feature.worldEaterMineHelper.WorldEaterMineHelper;
 import com.plusls.ommc.mixin.accessor.AccessorBlockRenderContext;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
@@ -29,16 +29,10 @@ public abstract class MixinBlockRenderer_0_4_9 {
     private final ThreadLocal<Boolean> ommc$renderTag = ThreadLocal.withInitial(() -> false);
 
     @Dynamic
-    @Inject(
-            method = "renderModel",
-            at = @At(
-                    value = "RETURN"
-            )
-    )
-    private void postRenderModel(@NotNull BlockRenderContext ctx, ChunkModelBuilder buffers, CallbackInfoReturnable<Boolean> cir
-    ) {
-        if (WorldEaterMineHelperUtil.shouldUseCustomModel(ctx.state(), ctx.pos()) && !this.ommc$renderTag.get()) {
-            BakedModel customModel = WorldEaterMineHelperUtil.customModels.get(ctx.state().getBlock());
+    @Inject(method = "renderModel", at = @At("RETURN"))
+    private void postRenderModel(@NotNull BlockRenderContext ctx, ChunkModelBuilder buffers, CallbackInfoReturnable<Boolean> cir) {
+        if (WorldEaterMineHelper.shouldUseCustomModel(ctx.state(), ctx.pos()) && !this.ommc$renderTag.get()) {
+            BakedModel customModel = WorldEaterMineHelper.customModels.get(ctx.state().getBlock());
 
             if (customModel != null) {
                 this.ommc$renderTag.set(true);

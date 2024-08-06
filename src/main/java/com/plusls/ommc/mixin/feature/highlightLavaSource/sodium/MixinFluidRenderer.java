@@ -1,7 +1,7 @@
 package com.plusls.ommc.mixin.feature.highlightLavaSource.sodium;
 
-import com.plusls.ommc.config.Configs;
-import com.plusls.ommc.feature.highlightLavaSource.LavaSourceResourceLoader;
+import com.plusls.ommc.game.Configs;
+import com.plusls.ommc.impl.feature.highlightLavaSource.LavaSourceResourceLoader;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
@@ -42,5 +42,4 @@ public class MixinFluidRenderer {
         lavaSprites[0] = LavaSourceResourceLoader.defaultLavaSourceStillSprite;
         lavaSprites[1] = LavaSourceResourceLoader.defaultLavaSourceFlowSprite;
     }
-
 }

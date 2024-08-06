@@ -1,20 +1,20 @@
 package com.plusls.ommc.impl.compat.modmenu;
 
 import com.plusls.ommc.OhMyMinecraftClientReference;
-import com.plusls.ommc.gui.GuiConfigs;
+import com.plusls.ommc.game.ConfigGui;
 import top.hendrixshen.magiclib.api.compat.modmenu.ModMenuApiCompat;
 
 public class ModMenuApiImpl implements ModMenuApiCompat {
     @Override
     public ConfigScreenFactoryCompat<?> getConfigScreenFactoryCompat() {
         return (screen) -> {
-            GuiConfigs gui = GuiConfigs.getInstance();
+            ConfigGui configGui = new ConfigGui();
             //#if MC > 11903
-            gui.setParent(screen);
+            configGui.setParent(screen);
             //#else
-            //$$ gui.setParentGui(screen);
+            //$$ configGui.setParentGui(screen);
             //#endif
-            return gui;
+            return configGui;
         };
     }
 
