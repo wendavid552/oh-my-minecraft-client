@@ -1,6 +1,6 @@
 package com.plusls.ommc.impl.feature.highlightLavaSource;
 
-import com.plusls.ommc.OhMyMinecraftClientReference;
+import com.plusls.ommc.SharedConstants;
 import com.plusls.ommc.game.Configs;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
@@ -29,9 +29,9 @@ import java.util.function.Function;
 public class LavaSourceResourceLoader implements SimpleSynchronousResourceReloadListener {
     public static final TextureAtlasSprite[] lavaSourceSpites = new TextureAtlasSprite[2];
     public static final TextureAtlasSprite[] defaultLavaSourceSpites = new TextureAtlasSprite[2];
-    private static final ResourceLocation listenerId = OhMyMinecraftClientReference.identifier("lava_reload_listener");
-    private static final ResourceLocation flowingSpriteId = OhMyMinecraftClientReference.identifier("block/lava_flow");
-    private static final ResourceLocation stillSpriteId = OhMyMinecraftClientReference.identifier("block/lava_still");
+    private static final ResourceLocation listenerId = SharedConstants.identifier("lava_reload_listener");
+    private static final ResourceLocation flowingSpriteId = SharedConstants.identifier("block/lava_flow");
+    private static final ResourceLocation stillSpriteId = SharedConstants.identifier("block/lava_still");
     public static TextureAtlasSprite lavaSourceFlowSprite;
     public static TextureAtlasSprite lavaSourceStillSprite;
     public static TextureAtlasSprite defaultLavaSourceFlowSprite;

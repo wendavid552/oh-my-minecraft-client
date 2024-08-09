@@ -1,6 +1,6 @@
 package com.plusls.ommc.impl.compat.modmenu;
 
-import com.plusls.ommc.OhMyMinecraftClientReference;
+import com.plusls.ommc.SharedConstants;
 import com.plusls.ommc.game.ConfigGui;
 import top.hendrixshen.magiclib.api.compat.modmenu.ModMenuApiCompat;
 
@@ -20,6 +20,6 @@ public class ModMenuApiImpl implements ModMenuApiCompat {
 
     @Override
     public String getModIdCompat() {
-        return OhMyMinecraftClientReference.getModIdentifier();
+        return SharedConstants.getModIdentifier();
     }
 }

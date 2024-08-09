@@ -2,7 +2,7 @@ package com.plusls.ommc.impl.generic.highlightWaypoint;
 
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.context.CommandContext;
-import com.plusls.ommc.OhMyMinecraftClientReference;
+import com.plusls.ommc.SharedConstants;
 import com.plusls.ommc.api.command.ClientBlockPosArgument;
 import com.plusls.ommc.game.Configs;
 import com.plusls.ommc.mixin.accessor.AccessorTextComponent;
@@ -107,7 +107,7 @@ public class HighlightWaypointHandler {
                 y = zStr.contains(".") ? (int) Double.parseDouble(yStr) : Integer.parseInt(yStr);
             }
         } catch (NumberFormatException e) {
-            OhMyMinecraftClientReference.getLogger().error("Failed to parse coordinate {}: {}", matcher.group(), e);
+            SharedConstants.getLogger().error("Failed to parse coordinate {}: {}", matcher.group(), e);
         }
 
         if (x == null || z == null) {
@@ -222,7 +222,7 @@ public class HighlightWaypointHandler {
                             String.format("/%s %d %d %d", HighlightWaypointHandler.highlightWaypoint, pos.getX(), pos.getY(), pos.getZ())) :
                             originalClickEvent))
                     .withStyle(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            ComponentCompat.literal(OhMyMinecraftClientReference.translate("highlight_waypoint.tooltip"))
+                            ComponentCompat.literal(SharedConstants.getTranslation("highlight_waypoint.tooltip"))
                     ))));
             prevIdx = waypointIdx + waypointString.length();
         }

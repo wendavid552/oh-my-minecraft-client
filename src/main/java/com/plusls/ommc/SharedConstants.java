@@ -1,9 +1,12 @@
 package com.plusls.ommc;
 
 import lombok.Getter;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import top.hendrixshen.magiclib.api.compat.minecraft.resources.ResourceLocationCompat;
+import top.hendrixshen.magiclib.api.i18n.I18n;
 import top.hendrixshen.magiclib.api.malilib.config.MagicConfigManager;
 import top.hendrixshen.magiclib.impl.malilib.config.GlobalConfigManager;
 import top.hendrixshen.magiclib.impl.malilib.config.MagicConfigHandler;
@@ -28,5 +31,13 @@ public class SharedConstants {
 
     public static @NotNull String getTranslatedModVersionType() {
         return VersionUtil.translateVersionType(SharedConstants.modVersion);
+    }
+
+    public static @NotNull ResourceLocation identifier(String path) {
+        return ResourceLocationCompat.fromNamespaceAndPath(SharedConstants.getModIdentifier(), path);
+    }
+
+    public static String getTranslation(String path) {
+        return I18n.tr(SharedConstants.modIdentifier + "." + path);
     }
 }

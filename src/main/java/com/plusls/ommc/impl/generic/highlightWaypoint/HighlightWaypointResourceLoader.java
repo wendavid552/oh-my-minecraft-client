@@ -1,6 +1,6 @@
 package com.plusls.ommc.impl.generic.highlightWaypoint;
 
-import com.plusls.ommc.OhMyMinecraftClientReference;
+import com.plusls.ommc.SharedConstants;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -21,8 +21,8 @@ import java.util.function.Function;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HighlightWaypointResourceLoader implements SimpleSynchronousResourceReloadListener {
     private static final HighlightWaypointResourceLoader instance = new HighlightWaypointResourceLoader();
-    private static final ResourceLocation listenerId = OhMyMinecraftClientReference.identifier("target_reload_listener");
-    public static final ResourceLocation targetId = OhMyMinecraftClientReference.identifier("block/target");
+    private static final ResourceLocation listenerId = SharedConstants.identifier("target_reload_listener");
+    public static final ResourceLocation targetId = SharedConstants.identifier("block/target");
 
     public static TextureAtlasSprite targetIdSprite;
 
