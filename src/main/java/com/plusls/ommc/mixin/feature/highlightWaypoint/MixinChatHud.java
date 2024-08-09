@@ -2,6 +2,7 @@ package com.plusls.ommc.mixin.feature.highlightWaypoint;
 
 import com.plusls.ommc.game.Configs;
 import com.plusls.ommc.impl.generic.highlightWaypoint.HighlightWaypointHandler;
+import net.minecraft.network.chat.MutableComponent;
 import top.hendrixshen.magiclib.api.compat.minecraft.network.chat.ComponentCompat;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
@@ -12,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 //#if MC > 11802
 import net.minecraft.client.GuiMessageTag;
+import top.hendrixshen.magiclib.api.compat.minecraft.network.chat.MutableComponentCompat;
 //#endif
 
 //#if MC >=12005
@@ -42,13 +44,11 @@ public class MixinChatHud {
             CallbackInfo ci
     ) {
         if (Configs.parseWaypointFromChat.getBooleanValue()) {
-            HighlightWaypointHandler.getInstance().parseMessage(ComponentCompat.of(
+            HighlightWaypointHandler.getInstance().parseMessage(message
                     //#if MC > 12004
-                    //$$ message.content()
-                    //#else
-                    message
+                    //$$ .content()
                     //#endif
-            ));
+            );
         }
     }
 }

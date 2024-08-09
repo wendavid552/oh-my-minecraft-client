@@ -65,7 +65,7 @@ public abstract class MixinPlayerEntity {
         EntityCompat entityCompat = EntityCompat.of(instance);
         this.ommc$original_step_height = original.call(instance);
 
-        if (!Configs.betterSneaking.getBooleanValue() || !entityCompat.getLevelCompat().map(Provider::get).get().isClientSide()) {
+        if (!Configs.betterSneaking.getBooleanValue() || !entityCompat.getLevel().isClientSide()) {
             return this.ommc$original_step_height;
         }
 

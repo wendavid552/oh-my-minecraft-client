@@ -81,7 +81,7 @@ public final class ClientCommandInternals {
             return true;
         } catch (RuntimeException e) {
             LOGGER.warn("Error while executing client-sided command '{}'", message, e);
-            commandSource.sendError(ComponentCompat.literal(e.getMessage()).get());
+            commandSource.sendError(ComponentCompat.literal(e.getMessage()));
             return true;
         } finally {
             client.getProfiler().pop();
@@ -109,7 +109,7 @@ public final class ClientCommandInternals {
         Component message = ComponentUtils.fromMessage(e.getRawMessage());
         String context = e.getContext();
 
-        return context != null ? ComponentCompat.translatable("command.context.parse_error", message, context).get() : message;
+        return context != null ? ComponentCompat.translatable("command.context.parse_error", message, context) : message;
     }
 
     /**
@@ -153,7 +153,7 @@ public final class ClientCommandInternals {
         Map<CommandNode<FabricClientCommandSource>, String> commands = ClientCommandManager.DISPATCHER.getSmartUsage(startNode, context.getSource());
 
         for (String command : commands.values()) {
-            context.getSource().sendFeedback(ComponentCompat.literal("/" + command).get());
+            context.getSource().sendFeedback(ComponentCompat.literal("/" + command));
         }
 
         return commands.size();

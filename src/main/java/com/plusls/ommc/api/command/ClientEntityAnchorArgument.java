@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
 public class ClientEntityAnchorArgument implements ArgumentType<ClientEntityAnchorArgument.Anchor> {
     private static final Collection<String> EXAMPLES = Arrays.asList("eyes", "feet");
     private static final DynamicCommandExceptionType ERROR_INVALID = new DynamicCommandExceptionType(
-            object -> ComponentCompat.translatable("argument.anchor.invalid", object).get()
+            object -> ComponentCompat.translatable("argument.anchor.invalid", object)
     );
 
     public static ClientEntityAnchorArgument.Anchor getAnchor(@NotNull CommandContext<FabricClientCommandSource> commandContext, String string) {

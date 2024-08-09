@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import top.hendrixshen.magiclib.api.compat.minecraft.network.chat.ComponentCompat;
 import top.hendrixshen.magiclib.api.compat.minecraft.network.chat.StyleCompat;
 import top.hendrixshen.magiclib.impl.compat.minecraft.world.level.dimension.DimensionWrapper;
+import top.hendrixshen.magiclib.util.minecraft.ComponentUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -116,35 +117,39 @@ public class HighlightWaypointHandler {
         return new HighlightWaypointHandler.ParseResult(matcher.group(), new BlockPos(x, y, z), matcher.start());
     }
 
-    public void parseMessage(@NotNull ComponentCompat chat) {
-        chat.get().getSiblings().forEach(value -> this.parseMessage(ComponentCompat.of(value)));
+    public void parseMessage(@NotNull Component chat) {
+        chat.getSiblings().forEach(this::parseMessage);
+
         //#if MC > 11802
-        ComponentContents componentContents = chat.get().getContents();
+        ComponentContents
+        //#else MC > 11502
+        //$$ BaseComponent
         //#endif
+        contents = ComponentUtil.getTextContent((MutableComponent) chat);
 
         if (
-            //#if MC > 11802
-                !(componentContents instanceof TranslatableContents)
-            //#else
-            //$$ !(chat instanceof TranslatableComponent)
-            //#endif
+                //#if MC > 11802
+                !(contents instanceof TranslatableContents)
+                //#else
+                //$$ !(contents instanceof TranslatableComponent)
+                //#endif
         ) {
             this.updateMessage(chat);
             return;
         }
 
         //#if MC > 11802
-        Object[] args = ((TranslatableContents) componentContents).getArgs();
+        Object[] args = ((TranslatableContents) contents).getArgs();
         //#else
-        //$$ Object[] args = ((TranslatableComponent) chat).getArgs();
+        //$$ Object[] args = ((TranslatableComponent) contents).getArgs();
         //#endif
         boolean updateTranslatableText = false;
 
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof Component) {
-                this.parseMessage(ComponentCompat.literal(((Component) args[i]).getString()));
+                this.parseMessage(ComponentUtil.simple(((Component) args[i]).getString()));
             } else if (args[i] instanceof String) {
-                ComponentCompat text = ComponentCompat.literal((String) args[i]);
+                Component text = ComponentUtil.simple(args[i]);
 
                 if (this.updateMessage(text)) {
                     args[i] = text;
@@ -154,41 +159,42 @@ public class HighlightWaypointHandler {
         }
 
         if (updateTranslatableText) {
-            //#if MC > 11802
-            ((AccessorTranslatableComponent) componentContents).setDecomposedWith(null);
-            //#elseif MC > 11502
-            //$$ ((AccessorTranslatableComponent) chat).setDecomposedWith(null);
+            //#if MC > 11502
+            ((AccessorTranslatableComponent) contents).setDecomposedWith(null);
             //#else
-            //$$ ((AccessorTranslatableComponent) chat).setDecomposedLanguageTime(-1);
+            //$$ ((AccessorTranslatableComponent) contents).setDecomposedLanguageTime(-1);
             //#endif
         }
 
         this.updateMessage(chat);
     }
 
-    private boolean updateMessage(@NotNull ComponentCompat chat) {
+    private boolean updateMessage(@NotNull Component chat) {
         //#if MC > 11802
-        ComponentContents componentContents = chat.get().getContents();
-
+        ComponentContents
+        //#else MC > 11502
+        //$$ BaseComponent
         //#endif
+        contents = ComponentUtil.getTextContent((MutableComponent) chat);
+
         if (
             //#if MC > 12002
-                !(componentContents instanceof PlainTextContents.LiteralContents)
+                !(contents instanceof PlainTextContents.LiteralContents)
             //#elseif MC > 11802
-            //$$ !(componentContents instanceof LiteralContents)
+            //$$ !(contents instanceof LiteralContents)
             //#else
-            //$$ !(chat instanceof TextComponent)
+            //$$ !(contents instanceof TextComponent)
             //#endif
         ) {
             return false;
         }
 
         //#if MC > 12002
-        PlainTextContents.LiteralContents literalChatText = (PlainTextContents.LiteralContents) componentContents;
+        PlainTextContents.LiteralContents literalChatText = (PlainTextContents.LiteralContents) contents;
         //#elseif MC > 11802
-        //$$ LiteralContents literalChatText = (LiteralContents) componentContents;
+        //$$ LiteralContents literalChatText = (LiteralContents) contents;
         //#else
-        //$$ TextComponent literalChatText = (TextComponent) chat;
+        //$$ TextComponent literalChatText = (TextComponent) contents;
         //#endif
         String message = ((AccessorTextComponent) (Object) literalChatText).getText();
         List<HighlightWaypointHandler.ParseResult> positions = this.parsePositions(message);
@@ -197,7 +203,7 @@ public class HighlightWaypointHandler {
             return false;
         }
 
-        StyleCompat originalStyle = chat.getStyle();
+        StyleCompat originalStyle = StyleCompat.of(chat.getStyle());
         ClickEvent originalClickEvent = originalStyle.get().getClickEvent();
         ArrayList<ComponentCompat> texts = Lists.newArrayList();
         int prevIdx = 0;
@@ -206,9 +212,9 @@ public class HighlightWaypointHandler {
         for (HighlightWaypointHandler.ParseResult position : positions) {
             String waypointString = position.getText();
             int waypointIdx = position.getMatcherStart();
-            texts.add(ComponentCompat.literal(message.substring(prevIdx, waypointIdx)).withStyle(originalStyle));
+            texts.add(ComponentCompat.literalCompat(message.substring(prevIdx, waypointIdx)).withStyle(originalStyle));
             BlockPos pos = position.getPos();
-            texts.add(ComponentCompat.literal(waypointString)
+            texts.add(ComponentCompat.literalCompat(waypointString)
                     .withStyle(ChatFormatting.GREEN)
                     .withStyle(ChatFormatting.UNDERLINE)
                     .withStyle(style -> style.withClickEvent(originalClickEvent == null ||
@@ -216,20 +222,20 @@ public class HighlightWaypointHandler {
                             String.format("/%s %d %d %d", HighlightWaypointHandler.highlightWaypoint, pos.getX(), pos.getY(), pos.getZ())) :
                             originalClickEvent))
                     .withStyle(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            ComponentCompat.literal(OhMyMinecraftClientReference.translate("highlight_waypoint.tooltip")).get()
+                            ComponentCompat.literal(OhMyMinecraftClientReference.translate("highlight_waypoint.tooltip"))
                     ))));
             prevIdx = waypointIdx + waypointString.length();
         }
 
         // Add tail if existed.
         if (prevIdx < message.length()) {
-            texts.add(ComponentCompat.literal(message.substring(prevIdx)).withStyle(originalStyle));
+            texts.add(ComponentCompat.literalCompat(message.substring(prevIdx)).withStyle(originalStyle));
         }
 
-        texts.forEach(value -> chat.get().getSiblings().add(value.get()));
+        texts.forEach(value -> chat.getSiblings().add(value.get()));
         ((AccessorTextComponent) (Object) literalChatText).setText("");
         //#if MC > 11502
-        ((MutableComponent) chat.get()).withStyle(StyleCompat.empty());
+        ((MutableComponent) chat).withStyle(StyleCompat.empty());
         //#else
         //$$ ((BaseComponent) chat).withStyle();
         //#endif
