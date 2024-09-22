@@ -431,8 +431,19 @@ public class SortInventoryHelper {
             //#else
             //$$ CustomData dataA = a.get(DataComponents.CUSTOM_DATA);
             //$$ CustomData dataB = b.get(DataComponents.CUSTOM_DATA);
-            //$$ CompoundTag tagA = dataA.copyTag();
-            //$$ CompoundTag tagB = dataB.copyTag();
+            //$$ CompoundTag tagA, tagB;
+            //$$ if (dataA != null) {
+            //$$     tagA = dataA.copyTag();
+            //$$ }
+            //$$ else{
+            //$$     tagA = null;
+            //$$ }
+            //$$ if (dataB != null) {
+            //$$     tagB = dataB.copyTag();
+            //$$ }
+            //$$ else{
+            //$$     tagB = null;
+            //$$ }
             //#endif
 
             if (ShulkerBoxItemHelper.isShulkerBoxBlockItem(a) && ShulkerBoxItemHelper.isShulkerBoxBlockItem(b) &&
