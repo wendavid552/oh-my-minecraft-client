@@ -9,7 +9,7 @@ jobs:
     if: ${{ github.event_name == 'push' && !startsWith(github.event.ref, 'refs/tags/') && contains(github.event.head_commit.message, '[build skip]') == false }}
     strategy:
       matrix:
-        java: [ 17 ]
+        java: [ 21 ]
         os: [ ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     steps:
