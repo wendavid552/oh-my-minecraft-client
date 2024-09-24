@@ -36,7 +36,7 @@ public class MixinScaffoldingBlock {
     )
     private void setNormalOutlineShape(BlockState state, BlockGetter world, BlockPos pos,
                                        CollisionContext context, CallbackInfoReturnable<VoxelShape> cir) {
-        if (Configs.disableMoveDownInScaffolding.getBooleanValue() && context.isDescending() &&
+        if (context.isDescending() && Configs.disableMoveDownInScaffolding.getBooleanValue() &&
                 context.isAbove(Shapes.block(), pos, true) &&
                 cir.getReturnValue() != MixinScaffoldingBlock.STABLE_SHAPE) {
 
