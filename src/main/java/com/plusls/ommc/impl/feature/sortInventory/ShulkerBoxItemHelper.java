@@ -12,7 +12,7 @@ import top.hendrixshen.magiclib.api.compat.minecraft.nbt.TagCompat;
 
 //#if MC > 12005
 //$$ import net.minecraft.core.component.DataComponents;
-//$$ import net.minecraft.world.item.component.CustomData;
+//$$ import net.minecraft.world.item.component.ItemContainerContents;
 //#endif
 
 public class ShulkerBoxItemHelper {
@@ -25,23 +25,25 @@ public class ShulkerBoxItemHelper {
 
         //#if MC < 12005
         CompoundTag nbt = itemStack.getTag();
-        //#else
-        //$$ CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
-        //$$ CompoundTag nbt = data.copyTag();
-        //#endif
-
         if (nbt == null || !nbt.contains("BlockEntityTag", TagCompat.TAG_COMPOUND)) {
             return true;
         }
-
         CompoundTag tag = nbt.getCompound("BlockEntityTag");
-
         if (tag.contains("Items", TagCompat.TAG_LIST)) {
             ListTag tagList = tag.getList("Items", TagCompat.TAG_COMPOUND);
             return tagList.isEmpty();
         }
-
         return true;
+        //#else
+        //$$ ItemContainerContents icc = itemStack.get(DataComponents.CONTAINER);
+        //$$     if (icc == null) {
+        //$$         return true;
+        //$$     }
+        //$$     if (icc.stream().allMatch(ItemStack::isEmpty)) {
+        //$$         return true;
+        //$$     }
+        //$$     return true;
+        //#endif
     }
 
     public static boolean isShulkerBoxBlockItem(@NotNull ItemStack itemStack) {
@@ -49,6 +51,7 @@ public class ShulkerBoxItemHelper {
                 ((BlockItem) itemStack.getItem()).getBlock() instanceof ShulkerBoxBlock;
     }
 
+    //#if MC < 12005
     public static int compareShulkerBox(@Nullable CompoundTag a, @Nullable CompoundTag b) {
         int aSize = 0, bSize = 0;
 
@@ -72,6 +75,18 @@ public class ShulkerBoxItemHelper {
 
         return aSize - bSize;
     }
+    //#else
+    //$$ public static int compareShulkerBox(@Nullable ItemContainerContents a, @Nullable ItemContainerContents b) {
+    //$$     int aSize = 0, bSize = 0;
+    //$$     if (a != null) {
+    //$$         aSize = a.stream().toList().size();
+    //$$     }
+    //$$     if (b != null) {
+    //$$         bSize = b.stream().toList().size();
+    //$$     }
+    //$$     return aSize - bSize;
+    //$$ }
+    //#endif
 
     public static int getMaxCount(ItemStack itemStack) {
         if (Configs.sortInventorySupportEmptyShulkerBoxStack.getBooleanValue() &&

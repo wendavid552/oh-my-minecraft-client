@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 
 //#if MC > 12005
-//$$ import net.minecraft.world.item.component.CustomData;
+//$$ import net.minecraft.world.item.component.ItemContainerContents;
 //$$ import net.minecraft.core.component.DataComponents;
 //#endif
 
@@ -429,21 +429,10 @@ public class SortInventoryHelper {
             CompoundTag tagA = a.getTag();
             CompoundTag tagB = b.getTag();
             //#else
-            //$$ CustomData dataA = a.get(DataComponents.CUSTOM_DATA);
-            //$$ CustomData dataB = b.get(DataComponents.CUSTOM_DATA);
-            //$$ CompoundTag tagA, tagB;
-            //$$ if (dataA != null) {
-            //$$     tagA = dataA.copyTag();
-            //$$ }
-            //$$ else{
-            //$$     tagA = null;
-            //$$ }
-            //$$ if (dataB != null) {
-            //$$     tagB = dataB.copyTag();
-            //$$ }
-            //$$ else{
-            //$$     tagB = null;
-            //$$ }
+            //$$ ItemContainerContents tagA = a.get(DataComponents.CONTAINER), tagB = b.get(DataComponents.CONTAINER);
+            //$$     if (tagA == null || tagB == null) {
+            //$$         return -1;
+            //$$     }
             //#endif
 
             if (ShulkerBoxItemHelper.isShulkerBoxBlockItem(a) && ShulkerBoxItemHelper.isShulkerBoxBlockItem(b) &&
@@ -512,7 +501,11 @@ public class SortInventoryHelper {
                     return -1;
                 } else if (hasTag(a)) {
                     // 如果都有 nbt 的话，确保排序后相邻的物品 nbt 标签一致
+                    //#if MC < 12005
                     return Objects.compare(tagA, tagB, Comparator.comparingInt(CompoundTag::hashCode));
+                    //#else
+                    //$$ return Objects.compare(tagA, tagB, Comparator.comparingInt(ItemContainerContents::hashCode));
+                    //#endif
                 }
 
                 // 物品少的排在后面
@@ -527,10 +520,10 @@ public class SortInventoryHelper {
         //#if MC < 12005
         return itemStack.hasTag();
         //#else
-        //$$ CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
+        //$$ ItemContainerContents data = itemStack.get(DataComponents.CONTAINER);
         //$$
         //$$ if (data != null) {
-        //$$     return !itemStack.isEmpty() && !data.copyTag().isEmpty();
+        //$$     return !itemStack.isEmpty() && !data.stream().toList().isEmpty();
         //$$ }
         //$$
         //$$ return false;
